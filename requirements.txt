@@ -1,0 +1,11 @@
+# =============================================================================
+# NUM-OSINT - requirements.txt
+# Developed by Lucky
+# Telegram: @universeluckyy | Website: luckyverse.tech
+# =============================================================================
+# Install all dependencies with:
+#   pip install -r requirements.txt
+# =============================================================================
+
+colorama>=0.4.6
+requests>=2.31.0
