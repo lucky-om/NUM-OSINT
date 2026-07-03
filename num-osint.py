@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  NUM-OSINT  |  v1.0
+#  NUM-OSINT  |  v2.0
 #  Developed by Lucky
 #  Telegram  : @universeluckyy
 #  Website   : luckyverse.tech
@@ -41,8 +41,28 @@ from config import (
 )
 
 
-# Initialise colorama (auto-reset after each print)
-init(autoreset=True)
+# Initialise colorama with native VT mode on Windows to support 256-colour sequences natively.
+if os.name == 'nt':
+    _vt_enabled = False
+    try:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        hOut = kernel32.GetStdHandle(-11)  # STD_OUTPUT_HANDLE
+        if hOut != -1:
+            mode = ctypes.c_ulong()
+            if kernel32.GetConsoleMode(hOut, ctypes.byref(mode)):
+                # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+                if kernel32.SetConsoleMode(hOut, mode.value | 0x0004):
+                    _vt_enabled = True
+    except Exception:
+        pass
+
+    if _vt_enabled:
+        init(convert=False, strip=False, autoreset=True)
+    else:
+        init(autoreset=True)
+else:
+    init(autoreset=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  ANSI 256-COLOUR HELPERS
@@ -302,30 +322,55 @@ def pulse_text(text: str, palette: list = None, pulses: int = 3) -> None:
 
 
 
+def resolve_banner(rows: list, palette: list = None, frames: int = 15) -> None:
+    """Glitch-resolve animation: banner text materializes from random matrix noise."""
+    pal = palette or _G_GREEN
+    matrix_chars = "01\uff86\uff83\uff66\uff71\uff73\uff74\uff75\uff76\uff77@#$%&ABCXYZ"
+    for frame in range(frames):
+        progress = frame / (frames - 1)
+        output_lines = []
+        for r_idx, row in enumerate(rows):
+            line_chars = []
+            col_color = pal[min(r_idx, len(pal) - 1)]
+            for ch in row:
+                if ch in (" ", "\n"):
+                    line_chars.append(ch)
+                else:
+                    if random.random() < progress:
+                        line_chars.append(ch)
+                    else:
+                        line_chars.append(random.choice(matrix_chars))
+            row_str = "".join(line_chars)
+            output_lines.append(f"{_c(col_color)}{_b()}{row_str}{_r()}")
+        
+        print("\n".join(output_lines))
+        
+        if frame < frames - 1:
+            # Move cursor up to redraw (number of rows lines up)
+            print(f"\033[{len(rows)}F", end="", flush=True)
+            time.sleep(0.06)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 #  BANNER
 # ─────────────────────────────────────────────────────────────────────────────
 
 def show_banner() -> None:
-    """Display animated banner: matrix rain \u2192 gradient ASCII art \u2192 info bar."""
+    """Display animated banner: matrix rain → gradient ASCII art → info bar."""
     os.system("cls" if os.name == "nt" else "clear")
-    matrix_rain(duration=0.6)
+    matrix_rain(duration=2.0)
     os.system("cls" if os.name == "nt" else "clear")
 
-    # Banner rows — each printed with a 256-colour gradient (dark\u2192bright green)
+    # LUCKY Banner rows
     rows = [
-        "  \u2588\u2588\u2557  \u2588\u2588\u2557\u2588\u2588\u2557   \u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557        \u2588\u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2551\u2588\u2588\u2588\u2557  \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557",
-        "  \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d       \u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d",
-        "  \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2557         \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2551\u2588\u2588\u2554\u2588\u2588\u2557\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2557  ",
-        "  \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u255d         \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u255d  \u2588\u2588\u2551\u2588\u2588\u2551\u255a\u2588\u2588\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u255d  ",
-        "  \u255a\u2588\u2588\u2588\u2588\u2554\u255d\u255a\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557       \u255a\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2551\u2588\u2588\u2551 \u255a\u2588\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557",
-        "   \u255a\u2550\u2550\u2550\u255d  \u255a\u2550\u2550\u2550\u2550\u2550\u255d \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d        \u255a\u2550\u2550\u2550\u2550\u2550\u255d \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\u255a\u2550\u255d\u255a\u2550\u255d  \u255a\u2550\u2550\u255d\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d",
+        "  ██╗     ██╗   ██╗  ██████╗ ██╗  ██╗██╗   ██╗",
+        "  ██║     ██║   ██║ ██╔════╝ ██║ ██╔╝╚██╗ ██╔╝",
+        "  ██║     ██║   ██║ ██║      █████╔╝  ╚████╔╝ ",
+        "  ██║     ██║   ██║ ██║      ██╔═██╗   ╚██╔╝  ",
+        "  ███████╗╚██████╔╝ ╚██████╗ ██║  ██╗   ██║   ",
+        "  ╚══════╝ ╚═════╝   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   "
     ]
-    grad = [22, 28, 34, 40, 46, 82]   # dark \u2192 bright green
-    for i, row in enumerate(rows):
-        col = grad[min(i, len(grad) - 1)]
-        print(f"{_c(col)}{_b()}{row}{_r()}")
-        time.sleep(0.04)
+    resolve_banner(rows)
 
     w = _tw()
     print()
@@ -645,7 +690,7 @@ def search_number(number: str) -> None:
     """Main search pipeline: fetch → normalise → filter nulls → display."""
     print()
     glitch_effect(f"  🔍 Initiating lookup for {number}...")
-    print()
+    scan_line(number)
 
     # ── OSINT APIs ─────────────────────────────────────────────────────────
     raw_data = fetch_number_data(number)
@@ -653,10 +698,15 @@ def search_number(number: str) -> None:
     if raw_data is None:
         print(Fore.RED + "\n  ❌  Both OSINT APIs failed. Check your internet connection.\n")
     else:
+        print()
+        spinner("Filtering & Decrypting Database Records", duration=1.0)
+        print()
+
         records = normalize_response(raw_data)
         if not records:
             print(Fore.YELLOW + "\n  ⚠  No OSINT data found for this number.\n")
         else:
+            success_flash(len(records))
             swipe_effect(
                 f"\n{Fore.CYAN + Style.BRIGHT}  📊  Search Results for {Fore.WHITE}{number}\n",
                 delay=0.006,
@@ -811,6 +861,8 @@ def main() -> None:
 
     role = verify_security_key()   # 'admin' or 'user'
     is_admin = (role == "admin")
+
+    boot_sequence(role)
 
     last_lookup: float = 0.0       # timestamp of most recent successful lookup
 

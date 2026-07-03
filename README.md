@@ -1,13 +1,6 @@
-# =============================================================================
-#  NUM-OSINT  |  README.md
-#  Developed by Lucky
-#  Telegram  : @universeluckyy
-#  Website   : luckyverse.tech
-# =============================================================================
-
 <div align="center">
 
-```
+```text
   ███╗   ██╗██╗   ██╗███╗   ███╗      ██████╗ ███████╗██╗███╗   ██╗████████╗
   ████╗  ██║██║   ██║████╗ ████║     ██╔═══██╗██╔════╝██║████╗  ██║╚══██╔══╝
   ██╔██╗ ██║██║   ██║██╔████╔██║     ██║   ██║███████╗██║██╔██╗ ██║   ██║   
@@ -16,108 +9,132 @@
   ╚═╝  ╚═══╝ ╚═════╝ ╚═╝     ╚═╝      ╚═════╝ ╚══════╝╚═╝╚═╝  ╚═══╝   ╚═╝  
 ```
 
-**v1.0 — Developed by Lucky**
+### ⚡ Premium Phone Number OSINT Search Engine ⚡
 
-[![Telegram](https://img.shields.io/badge/Telegram-@universeluckyy-blue?logo=telegram)](https://t.me/universeluckyy)
-[![Website](https://img.shields.io/badge/Website-luckyverse.tech-purple)](https://luckyverse.tech)
-[![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.8+-green?logo=python)](https://python.org)
+[![Version](https://img.shields.io/badge/Version-v1.0-FF007F?style=for-the-badge&logo=github)](https://github.com/luckyverse/NUM-OSINT)
+[![Python](https://img.shields.io/badge/Python-3.8+-00F0FF?style=for-the-badge&logo=python)](https://python.org)
+[![Telegram](https://img.shields.io/badge/Telegram-@universeluckyy-0088CC?style=for-the-badge&logo=telegram)](https://t.me/universeluckyy)
+[![Website](https://img.shields.io/badge/Website-luckyverse.tech-8A2BE2?style=for-the-badge&logo=google-chrome)](https://luckyverse.tech)
+
+---
 
 </div>
 
----
-
-## ⚠️ Disclaimer
-
-> **For educational purposes only.**
-> The developer does not own or store any data retrieved by this tool.
-> Data is from publicly leaked sources. Use at your own risk.
-> The developer is not responsible for any misuse or damages.
-
----
-
-## 📖 About
-
-**NUM-OSINT** is a terminal-based phone number OSINT tool.
-It is restricted to authorised users only.
+> [!WARNING]
+> **LEGAL DISCLAIMER & TERMS OF USE**
+> - This tool is created strictly for **educational purposes and security auditing only**.
+> - The developer (**Lucky**) does NOT own, collect, store, or distribute any personal data retrieved by this tool.
+> - All data queried is sourced from public leaks already circulating on the dark-web.
+> - The developer is **NOT** responsible for any misuse, illegal activities, privacy violations, or legal consequences resulting from this tool.
+> - **By utilizing this software, you assume full legal responsibility for your actions.**
 
 ---
 
-## 🚀 Installation
+## 📖 Table of Contents
+- [✨ Key Features](#-key-features)
+- [🚀 Installation Guide](#-installation-guide)
+- [🛠️ How to Use](#️-how-to-use)
+- [📋 System Requirements](#-system-requirements)
+- [📁 Repository Structure](#-repository-structure)
+- [🔒 Security & License](#-security--license)
 
-**Linux / Termux:**
+---
 
+## ✨ Key Features
+- 🔄 **Dual API Pipeline** — Direct queries through primary engine with auto-fallback to secondary API routes.
+- 👾 **Holographic UI Banner** — Beautiful, retro terminal banner that resolves dynamically from matrix noise.
+- 🎨 **Cyber Animations** — Interactive scanning bars, loader bars, decryption status spinners, and flashing success prompts.
+- 🧹 **Auto Data Sanitation** — Filters out null, empty, or redundant records automatically before displaying results.
+- 🗃️ **Deduplication Engine** — Intelligent fingerprint hashing to deduplicate matching records across multiple queries.
+- 🪪 **Standardized Fields** — Beautiful categorization for identity info (Aadhaar, PAN, Voter ID), contact details, location data, and operator specs.
+
+---
+
+## 🚀 Installation Guide
+
+### Option 1: Automated Script (Linux / Termux / macOS)
+Simply download and run the automated installer to set up all dependencies:
 ```bash
-git clone https://github.com/luckyverse/NUM-OSINT
+# Clone the repository
+git clone https://github.com/luckyverse/NUM-OSINT.git
 cd NUM-OSINT
-chmod +x install.sh
+
+# Set execution privileges
+chmod +x install.sh run.sh
+
+# Run the installer script
 ./install.sh
 ```
 
-**Manual:**
-
+### Option 2: Manual Installation (All Platforms)
+For manual setup on Windows, Linux, or macOS:
 ```bash
+# Clone the repository
+git clone https://github.com/luckyverse/NUM-OSINT.git
+cd NUM-OSINT
+
+# Install required Python modules
 pip install -r requirements.txt
 ```
 
 ---
 
-## 🛠️ Usage
+## 🛠️ How to Use
 
+Launch the launcher script or python engine directly:
 ```bash
+# Using the launcher script (Linux/macOS)
+./run.sh
+
+# Or directly running Python (All Platforms)
 python3 num-osint.py
 ```
 
-Once launched:
-
-1. Accept the disclaimer.
-2. Enter the security key when prompted.
-3. Type a 10-digit number to search, or type `help` for all commands.
-
----
-
-## 📋 Requirements
-
-| Package | Version |
-|---|---|
-| Python | ≥ 3.8 |
-| colorama | ≥ 0.4.6 |
-| requests | ≥ 2.31.0 |
+### 🎮 Terminal Commands & Inputs
+Once you complete the startup security verification:
+- Enter any **10-digit mobile number** (e.g. `9876543210`) to perform a query.
+- Type `help` to access the command reference.
+- Type `clear` or `cls` to clear the terminal output.
+- Type `exit` or `quit` to close the interface safely.
 
 ---
 
-## 📁 Files
+## 📋 System Requirements
 
-```
+| Dependency | Minimum Version | Description |
+| :--- | :--- | :--- |
+| 🐍 **Python** | `≥ 3.8` | Backend interpreter |
+| 📡 **requests** | `≥ 2.31.0` | HTTP request handler for OSINT API querying |
+| 🎨 **colorama** | `≥ 0.4.6` | ANSI escape code interpretation for terminal styling |
+
+---
+
+## 📁 Repository Structure
+
+```text
 NUM-OSINT/
-├── num-osint.py       Main tool
-├── config.py          Internal configuration
-├── requirements.txt   Python dependencies
-├── install.sh         Installer script
-├── SECURITY.md        Security policy
-├── README.md          This file
-└── LICENSE            Copyright notice
+├── 📁 .git/
+├── 📄 .gitignore
+├── 📄 LICENSE             # Proprietary license terms
+├── 📄 README.md           # Documentation and guides
+├── 📄 SECURITY.md         # Vulnerability reporting protocol
+├── 📄 config.py           # API routes & key hashes configuration
+├── 📄 install.sh          # Dependency installation script
+├── 📄 num-osint.py        # Core application source code
+├── 📄 requirements.txt    # List of python package dependencies
+└── 📄 run.sh              # Premium shell launcher
 ```
 
 ---
 
-## 📜 License
-
-© 2026 Lucky. All Rights Reserved.
-This software is proprietary. See [LICENSE](LICENSE) for full terms.
-
----
-
-## 🔒 Security
-
-To report a vulnerability, see [SECURITY.md](SECURITY.md).
-
----
+## 🔒 Security & License
+- **Vulnerability Reporting**: To report any security flaws or concerns, please refer to our guidelines in [SECURITY.md](SECURITY.md).
+- **License**: © 2026 Lucky. All Rights Reserved. This software is proprietary and subject to terms detailed in [LICENSE](LICENSE).
 
 <div align="center">
+<br>
 
-**⚡ Developed by Lucky**  
-📲 **Telegram:** [@universeluckyy](https://t.me/universeluckyy)  
-🌐 **Website:** [luckyverse.tech](https://luckyverse.tech)
+**Developed with ⚡ by [Lucky](https://t.me/universeluckyy)**  
+[luckyverse.tech](https://luckyverse.tech)
 
 </div>
