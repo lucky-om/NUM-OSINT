@@ -56,7 +56,7 @@
 Simply download and run the automated installer to set up all dependencies:
 ```bash
 # Clone the repository
-git clone https://github.com/luckyverse/NUM-OSINT.git
+git clone https://github.com/lucky-om/NUM-OSINT.git
 cd NUM-OSINT
 
 # Set execution privileges
