@@ -1,0 +1,20 @@
+# Environment & Secrets
+.env
+*.env
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# IDE / Editor Files
+.vscode/
+.idea/
+.ds_store
+Thumbs.db
+
+# Agent Metadata
+.agents/
+.claude/
