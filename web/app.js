@@ -79,18 +79,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── API URL Config ───────────────────────────────────────────────────────
+  const DEFAULT_API_URL = "https://exploitsindia.site/osint/api.php?key=anish-exploits&type=number&num=";
   const INJECTED_API_URL = "__API_URL_PLACEHOLDER__";
 
   function getApiEndpoint(targetNum) {
-    let baseUrl = "";
+    let baseUrl = DEFAULT_API_URL;
     if (INJECTED_API_URL && !INJECTED_API_URL.includes("PLACEHOLDER") && INJECTED_API_URL.trim() !== "") {
       baseUrl = INJECTED_API_URL.trim();
     } else if (window.API_URL) {
       baseUrl = window.API_URL.trim();
-    }
-
-    if (!baseUrl) {
-      throw new Error("API URL secret is not configured. Please set the API_URL repository secret in GitHub.");
     }
 
     if (baseUrl.endsWith('=')) {
@@ -133,18 +130,63 @@ document.addEventListener('DOMContentLoaded', () => {
       const apiUrl = getApiEndpoint(num);
       log(`Connecting to secure API endpoint...`, 'info');
 
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: { Accept: 'application/json' },
-        signal: AbortSignal.timeout(15000)
-      });
+      let response = null;
+      let rawJson = null;
 
-      if (!response.ok) {
-        throw new Error(`Server returned HTTP status ${response.status}`);
+      // 1. Try direct fetch
+      try {
+        response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: { Accept: 'application/json' },
+          signal: AbortSignal.timeout(5000)
+        });
+        if (response.ok) {
+          rawJson = await response.json();
+          log('Connected via direct API channel.', 'ok');
+        }
+      } catch (directErr) {
+        log('Direct browser connection restricted by CORS — routing through secure proxy bridge...', 'info');
       }
 
-      const rawJson = await response.json();
-      log('API channel connected successfully.', 'ok');
+      // 2. Try CorsProxy.io if direct fetch failed
+      if (!rawJson) {
+        try {
+          const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+          response = await fetch(proxyUrl1, {
+            method: 'GET',
+            headers: { Accept: 'application/json' },
+            signal: AbortSignal.timeout(10000)
+          });
+          if (response.ok) {
+            rawJson = await response.json();
+            log('Connected via primary proxy bridge.', 'ok');
+          }
+        } catch (p1Err) {
+          log('Primary proxy unavailable — switching to secondary relay...', 'info');
+        }
+      }
+
+      // 3. Try AllOrigins as final proxy fallback
+      if (!rawJson) {
+        try {
+          const proxyUrl2 = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+          response = await fetch(proxyUrl2, {
+            method: 'GET',
+            headers: { Accept: 'application/json' },
+            signal: AbortSignal.timeout(12000)
+          });
+          if (response.ok) {
+            rawJson = await response.json();
+            log('Connected via secondary relay bridge.', 'ok');
+          }
+        } catch (p2Err) {
+          // Keep rawJson null
+        }
+      }
+
+      if (!rawJson) {
+        throw new Error('All API channels and proxy relays failed to respond. Please check your connection.');
+      }
 
       const recs = rawJson.result || rawJson.results || rawJson.data || [];
       const isOk = rawJson.status === 'success' || (Array.isArray(recs) && recs.length > 0);
