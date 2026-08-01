@@ -1,12 +1,15 @@
 # =============================================================================
-# NUM-OSINT - config.py
+# NUM-OSINT v2.0 - config.py
 # Developed by Lucky
-# Telegram: https://t.me/+vSQiUVbXYc5hYjBl | Website: luckyverse.tech
+# Telegram: https://t.me/+vSQiUVbXYc5hYjBl | Website: num-osint.luckyverse.tech
 # =============================================================================
 
 import os
+import base64
+import hashlib
 
 def _load_env():
+    """Load .env file if present (optional on Termux/Linux)."""
     try:
         from dotenv import load_dotenv
         load_dotenv()
@@ -22,21 +25,37 @@ def _load_env():
 
 _load_env()
 
-API_URL = os.getenv("API_URL", "")
+# SHA-256 Salted & Encrypted Payload (Cannot be decoded via simple base64)
+_ENC_PAYLOAD = "vwzpy3mhkFuF4l9tSz9Vqn6rQpe3M73zmDoLxIFAkqlY+U2yxEu3pD9RKpi5V+9QxA3rO87NQpUly/ftJrDsGKpWKBYoPg0Szi+CfA=="
+_SALT = b"NUM_OSINT_LUCKY_V2_SALT_2026"
 
+def _decode_api():
+    """Resolve API URL: .env takes priority, falls back to SHA-256 salted decryption."""
+    env_url = os.getenv("API_URL", "").strip()
+    if env_url:
+        return env_url
+    try:
+        key = hashlib.sha256(_SALT).digest()
+        raw_bytes = base64.b64decode(_ENC_PAYLOAD)
+        dec_bytes = bytearray()
+        for i, b in enumerate(raw_bytes):
+            k_byte = key[i % len(key)]
+            dec_bytes.append(b ^ k_byte ^ ((i * 37 + 13) & 0xFF))
+        return dec_bytes.decode("utf-8")
+    except Exception:
+        return ""
+
+API_URL = _decode_api()
 
 _rh = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 13; Termux) Gecko/117.0 Firefox/117.0",
     "Accept": "application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Referer": "https://luckyverse.tech/",
+    "Referer": "https://num-osint.luckyverse.tech/",
     "Connection": "keep-alive"
 }
 
-_zx = "b988b5837c24ad1987f31266e0246b0fdaaf7948714cfa2a9f7757c52977ff14"
-_za = "37b10217c5e7b58a0d017d144edf2a40d31d28965669e5caaa9cd664b8b60c5a"
-
-TOOL_VERSION = "v1.0"
+TOOL_VERSION = "v2.0"
 TOOL_NAME    = "NUM-OSINT"
 AUTHOR       = "Lucky"
 TELEGRAM     = "https://t.me/+vSQiUVbXYc5hYjBl"
-WEBSITE      = "luckyverse.tech"
+WEBSITE      = "num-osint.luckyverse.tech"

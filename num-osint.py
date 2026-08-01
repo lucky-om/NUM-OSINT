@@ -3,7 +3,7 @@
 #  NUM-OSINT  |  v2.0
 #  Developed by Lucky
 #  Telegram  : https://t.me/+vSQiUVbXYc5hYjBl
-#  Website   : luckyverse.tech
+#  Website   : num-osint.luckyverse.tech
 # =============================================================================
 #
 #  DISCLAIMER:
@@ -24,14 +24,11 @@ import sys
 import shutil
 import time
 import random
-import hashlib
 from colorama import init, Fore, Style
 
 from config import (
     API_URL,
     _rh,
-    _zx,
-    _za,
     TOOL_VERSION,
     TOOL_NAME,
     AUTHOR,
@@ -88,13 +85,13 @@ def _tw() -> int:
     except Exception:
         return 76
 
-# 256-colour gradient palettes
-_G_GREEN  = [22, 28, 34, 40, 46, 82, 118]
-_G_CYAN   = [23, 30, 37, 44, 51, 87, 123]
-_G_BLUE   = [17, 19, 21, 27, 33, 39, 75]
-_G_RED    = [52, 88, 124, 160, 196, 203]
-_G_YELLOW = [136, 142, 148, 154, 184, 220, 226]
-_G_MAGENTA= [53, 90, 127, 164, 201, 207]
+# 256-colour gradient palettes (Violet & Baby Pink theme)
+_G_VIOLET   = [53, 90, 127, 128, 134, 140, 176]   # Deep violet to lavender
+_G_PINK     = [197, 198, 199, 200, 206, 212, 218]  # Baby pink gradient
+_G_VPINK    = [53, 90, 127, 164, 197, 206, 212]    # Violet → Baby Pink blend
+_G_RED      = [52, 88, 124, 160, 196, 203]
+_G_CYAN     = [23, 30, 37, 44, 51, 87, 123]
+_G_YELLOW   = [136, 142, 148, 154, 184, 220, 226]
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -128,7 +125,7 @@ def draw_separator(char: str = "─", width: int = 0, color: str = "") -> None:
 def gradient_separator(width: int = 0, palette: list = None) -> None:
     """A separator bar that transitions through a 256-colour gradient."""
     w   = width or _tw()
-    pal = palette or _G_GREEN
+    pal = palette or _G_VIOLET
     seg = max(1, w // len(pal))
     line = ""
     _hbar = "\u2501"
@@ -140,20 +137,20 @@ def gradient_separator(width: int = 0, palette: list = None) -> None:
 
 def loading_bar(label: str = "Loading", width: int = 36, delay: float = 0.032) -> None:
     """Gradient loading bar: fills with colour-shifting blocks."""
-    pal = _G_GREEN + list(reversed(_G_GREEN))
-    print(f"\n  {_c(51)}{_b()}{label}{_r()}  ", end="", flush=True)
+    pal = _G_VPINK + list(reversed(_G_VPINK))
+    print(f"\n  {_c(206)}{_b()}{label}{_r()}  ", end="", flush=True)
     for i in range(width):
         col = pal[i % len(pal)]
         print(f"{_c(col)}\u2588{_r()}", end="", flush=True)
         time.sleep(delay)
-    print(f"  {_c(46)}{_b()}\u2714{_r()}\n")
+    print(f"  {_c(212)}{_b()}\u2714{_r()}\n")
 
 
 def spinner(label: str = "Fetching", duration: float = 1.8) -> None:
     """Smooth orbital spinner with 256-colour cycling."""
     dot_frames = ["\u280b","\u2819","\u2839","\u2838","\u283c","\u2834","\u2826","\u2827","\u2807","\u280f"]
     orb_frames = ["\u25dc","\u25dd","\u25de","\u25df"]
-    pal      = _G_CYAN
+    pal      = _G_VPINK
     end_time = time.time() + duration
     idx      = 0
     while time.time() < end_time:
@@ -186,7 +183,7 @@ def glitch_effect(text: str, iterations: int = 6) -> None:
 
 def print_colored(text: str, delay: float = 0.004) -> None:
     """Print each line cycling through a 256-colour gradient."""
-    pal = _G_CYAN + _G_GREEN + _G_MAGENTA
+    pal = _G_VIOLET + _G_PINK + _G_VPINK
     for i, line in enumerate(text.splitlines()):
         col = pal[i % len(pal)]
         for ch in line:
@@ -196,10 +193,9 @@ def print_colored(text: str, delay: float = 0.004) -> None:
 
 
 def matrix_rain(duration: float = 0.75) -> None:
-    """Column-based matrix rain: bright head drops with dim trailing tails."""
+    """Column-based matrix rain: violet & baby pink themed drops."""
     w       = _tw()
     cols    = w // 2
-    # each column tracks how deep into its tail sequence it is
     depths  = [random.randint(0, 10) for _ in range(cols)]
     speeds  = [random.choice([1, 1, 2]) for  _ in range(cols)]
     chars   = "01\uff86\uff83\uff66\uff71\uff73\uff74\uff75\uff76\uff77@#$%&ABCXYZ"
@@ -209,13 +205,13 @@ def matrix_rain(duration: float = 0.75) -> None:
         for i in range(cols):
             d = depths[i]
             if d == 0:
-                line += f"{_c(255)}{_b()}{random.choice(chars)} {_r()}"   # bright head
+                line += f"{_c(255)}{_b()}{random.choice(chars)} {_r()}"   # bright head (white)
             elif d < 3:
-                line += f"{_c(46)}{random.choice(chars)} {_r()}"           # bright tail
+                line += f"{_c(212)}{random.choice(chars)} {_r()}"          # baby pink bright
             elif d < 6:
-                line += f"{_c(34)}{random.choice(chars)} {_r()}"           # mid tail
+                line += f"{_c(127)}{random.choice(chars)} {_r()}"          # violet mid
             elif d < 9:
-                line += f"{_c(22)}{random.choice(chars)} {_r()}"           # dim tail
+                line += f"{_c(53)}{random.choice(chars)} {_r()}"           # deep violet dim
             else:
                 line += "  "                                                 # empty
             depths[i] = (depths[i] + speeds[i]) % 13
@@ -246,11 +242,11 @@ def boot_sequence(role: str = "user") -> None:
     steps.append((tag("BOOT", 46), "System READY  \u2500  Welcome to NUM-OSINT!"))
 
     print()
-    gradient_separator(palette=_G_CYAN)
+    gradient_separator(palette=_G_VPINK)
     for t, msg in steps:
         time.sleep(random.uniform(0.07, 0.15))
         print(f"  {t}  {_c(255)}{msg}{_r()}")
-    gradient_separator(palette=_G_GREEN)
+    gradient_separator(palette=_G_VIOLET)
     print()
 
 
@@ -267,16 +263,16 @@ def scan_line(number: str) -> None:
         for pos in range(0, w + 1, 2):
             p = pos if sweep == 0 else w - pos
             p = max(0, min(p, w - 2))
-            filled = f"{_c(28)}{char_filled * p}"
-            head   = f"{_c(46)}{_b()}\u2588\u2588{_r()}"
-            trail  = f"{_c(22)}{char_trail * (w - p - 2)}{_r()}"
+            filled = f"{_c(127)}{char_filled * p}"
+            head   = f"{_c(212)}{_b()}\u2588\u2588{_r()}"
+            trail  = f"{_c(53)}{char_trail * (w - p - 2)}{_r()}"
             print(f"\r  [{filled}{head}{trail}]", end="", flush=True)
             time.sleep(0.010)
 
     char_double_dash = '\u2550'
-    top_bar = f"{_c(46)}{char_double_dash * (w + 2)}{_r()}"
-    hdr     = f"{' ' * pad}{_c(51)}{_b()}{label}{_r()}"
-    bot_bar = f"{_c(34)}{char_double_dash * (w + 2)}{_r()}"
+    top_bar = f"{_c(127)}{char_double_dash * (w + 2)}{_r()}"
+    hdr     = f"{' ' * pad}{_c(212)}{_b()}{label}{_r()}"
+    bot_bar = f"{_c(90)}{char_double_dash * (w + 2)}{_r()}"
     print(f"\r  {top_bar}")
     print(f"  {hdr}")
     print(f"  {bot_bar}")
@@ -323,7 +319,7 @@ def pulse_text(text: str, palette: list = None, pulses: int = 3) -> None:
 
 def resolve_banner(rows: list, palette: list = None, frames: int = 15) -> None:
     """Glitch-resolve animation: banner text materializes from random matrix noise."""
-    pal = palette or _G_GREEN
+    pal = palette or _G_VIOLET
     matrix_chars = "01\uff86\uff83\uff66\uff71\uff73\uff74\uff75\uff76\uff77@#$%&ABCXYZ"
     for frame in range(frames):
         progress = frame / (frames - 1)
@@ -369,18 +365,18 @@ def show_banner() -> None:
         "  ███████╗╚██████╔╝ ╚██████╗ ██║  ██╗   ██║   ",
         "  ╚══════╝ ╚═════╝   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   "
     ]
-    resolve_banner(rows)
+    resolve_banner(rows, palette=_G_VPINK)
 
     w = _tw()
     print()
-    gradient_separator(w, _G_YELLOW)
+    gradient_separator(w, _G_VPINK)
     print(
-        f"  {_c(51)}{_b()}  {TOOL_NAME} {_c(255)}{TOOL_VERSION}   "
-        f"{_c(201)}{_b()}Developed by {_c(255)}{AUTHOR}  "
-        f"{_c(226)}@{_c(255)}{TELEGRAM}  "
-        f"{_c(226)}\u25ba {_c(255)}{WEBSITE}{_r()}"
+        f"  {_c(127)}{_b()}  {TOOL_NAME} {_c(255)}{TOOL_VERSION}   "
+        f"{_c(212)}{_b()}Developed by {_c(255)}{AUTHOR}  "
+        f"{_c(206)}Telegram: {_c(255)}{TELEGRAM}  "
+        f"{_c(206)}Web: {_c(255)}{WEBSITE}{_r()}"
     )
-    gradient_separator(w, _G_YELLOW)
+    gradient_separator(w, _G_VPINK)
     print()
     neon_box(
         [
