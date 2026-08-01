@@ -625,7 +625,7 @@ document.addEventListener('DOMContentLoaded', () => {
 }); // end DOMContentLoaded
 
 
-// ══ CANVAS — Violet Data Rain + Particle Mesh ═════════════════════════════
+// ══ CANVAS — Cyber Matrix Data Rain + Neon Particle Constellation ════════
 function initCanvas() {
   const canvas = document.getElementById('bg-canvas');
   if (!canvas) return;
@@ -638,7 +638,7 @@ function initCanvas() {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (reducedMotion) {
-    canvas.style.background = '#000';
+    canvas.style.background = '#05030a';
     return;
   }
 
@@ -652,50 +652,50 @@ function initCanvas() {
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(onResize, 150);
+    resizeTimer = setTimeout(onResize, 120);
   });
 
-  const COL_W = isMobile ? 28 : 20;
-  const CHARS = '01ヲアイウエオカキクケコサシスセソタチ█▓▒░◆■◈◉';
+  const COL_W = isMobile ? 18 : 14;
+  const CHARS = '0110010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101';
+  const MATRIX_CHARS = '01ヲアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲン█▓▒░◆■◈◉0123456789ABCDEF';
 
   let drops = [];
 
   function resetDrops() {
     drops = [];
     const cols = Math.floor(W / COL_W);
-    const maxCols = isMobile ? Math.floor(cols * 0.4) : cols;
+    const maxCols = isMobile ? Math.floor(cols * 0.7) : cols;
     for (let i = 0; i < maxCols; i++) {
       drops.push({
         x: i * COL_W + COL_W / 2,
-        y: Math.random() * -H * 0.5,
-        speed: Math.random() * 0.55 + 0.18,
-        len: Math.floor(Math.random() * (isMobile ? 12 : 18) + 6),
-        chars: Array.from({ length: 22 }, () => randChar()),
-        timer: Math.random() * 80,
+        y: Math.random() * -H * 1.2,
+        speed: Math.random() * 1.8 + 0.8,
+        len: Math.floor(Math.random() * (isMobile ? 16 : 28) + 10),
+        chars: Array.from({ length: 32 }, () => randChar()),
+        timer: Math.random() * 60,
+        colorTheme: Math.random() > 0.5 ? 'cyan' : (Math.random() > 0.5 ? 'violet' : 'green')
       });
     }
   }
 
   function randChar() {
-    return CHARS[Math.floor(Math.random() * CHARS.length)];
+    return MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
   }
 
   let particles = [];
 
   function resetParticles() {
     particles = [];
-    const count = isMobile
-      ? Math.min(Math.floor(W / 60), 12)
-      : Math.min(Math.floor(W / 32), 38);
+    const count = isMobile ? 18 : 45;
     for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * W,
         y: Math.random() * H,
-        vx: (Math.random() - 0.5) * 0.28,
-        vy: (Math.random() - 0.5) * 0.28,
-        r: Math.random() * 1.4 + 0.4,
-        a: Math.random() * 0.25 + 0.04,
-        col: Math.random() > 0.45 ? '191,0,255' : '255,0,110',
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
+        r: Math.random() * 1.8 + 0.5,
+        a: Math.random() * 0.4 + 0.1,
+        col: Math.random() > 0.5 ? '0,240,255' : (Math.random() > 0.5 ? '191,0,255' : '255,0,110'),
       });
     }
   }
@@ -703,7 +703,7 @@ function initCanvas() {
   resetDrops();
   resetParticles();
 
-  const TARGET_FPS = isMobile ? 20 : 60;
+  const TARGET_FPS = isMobile ? 30 : 60;
   const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
   let lastT = 0;
@@ -719,16 +719,17 @@ function initCanvas() {
     const dt = now - lastT;
     lastT = now;
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.88)';
+    // Soft trail fade for classic Matrix digital trail persistence
+    ctx.fillStyle = 'rgba(5, 3, 10, 0.16)';
     ctx.fillRect(0, 0, W, H);
 
-    ctx.font = `${COL_W - 3}px 'JetBrains Mono', monospace`;
+    ctx.font = `${COL_W - 2}px 'JetBrains Mono', 'Fira Code', monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
 
     for (const d of drops) {
       d.timer += dt;
-      if (d.timer > 90) {
+      if (d.timer > 60) {
         d.timer = 0;
         d.chars[Math.floor(Math.random() * d.chars.length)] = randChar();
       }
@@ -741,27 +742,41 @@ function initCanvas() {
         const ch = d.chars[i % d.chars.length];
 
         if (i === 0) {
-          ctx.fillStyle = `rgba(255, 240, 255, ${frac * 0.95})`;
+          // Glowing Leader Drop (White/Cyan Glow)
+          ctx.fillStyle = '#FFFFFF';
+          ctx.shadowColor = '#00F0FF';
+          ctx.shadowBlur = 12;
         } else if (i === 1) {
-          ctx.fillStyle = `rgba(222, 160, 255, ${frac * 0.85})`;
-        } else if (i < 4) {
-          ctx.fillStyle = `rgba(191, 0, 255, ${frac * 0.65})`;
+          ctx.fillStyle = 'rgba(180, 245, 255, 0.95)';
+          ctx.shadowColor = '#00F0FF';
+          ctx.shadowBlur = 6;
+        } else if (d.colorTheme === 'cyan') {
+          ctx.fillStyle = `rgba(0, 240, 255, ${frac * 0.75})`;
+          ctx.shadowBlur = 0;
+        } else if (d.colorTheme === 'violet') {
+          ctx.fillStyle = `rgba(191, 0, 255, ${frac * 0.75})`;
+          ctx.shadowBlur = 0;
         } else {
-          ctx.fillStyle = `rgba(130, 0, 180, ${frac * 0.28})`;
+          ctx.fillStyle = `rgba(0, 255, 120, ${frac * 0.7})`;
+          ctx.shadowBlur = 0;
         }
 
         ctx.fillText(ch, d.x, cy);
       }
 
-      d.y += d.speed * (dt * 0.045);
+      d.y += d.speed * (dt * 0.06);
       if (d.y - d.len * COL_W > H) {
-        d.y = Math.random() * -COL_W * 8;
-        d.speed = Math.random() * 0.55 + 0.18;
-        d.len = Math.floor(Math.random() * (isMobile ? 12 : 18) + 6);
+        d.y = Math.random() * -COL_W * 6;
+        d.speed = Math.random() * 1.8 + 0.8;
+        d.len = Math.floor(Math.random() * (isMobile ? 16 : 28) + 10);
       }
     }
 
-    const LINK_DIST = isMobile ? 80 : 110;
+    // Reset shadow after drop render loop
+    ctx.shadowBlur = 0;
+
+    // Render Cyber Particle Mesh Constellation
+    const LINK_DIST = isMobile ? 90 : 130;
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
       p.x += p.vx;
@@ -774,20 +789,18 @@ function initCanvas() {
       ctx.fillStyle = `rgba(${p.col}, ${p.a})`;
       ctx.fill();
 
-      if (!isMobile) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const q = particles[j];
-          const dx = p.x - q.x, dy = p.y - q.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < LINK_DIST) {
-            const lineA = 0.07 * (1 - dist / LINK_DIST);
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(q.x, q.y);
-            ctx.strokeStyle = `rgba(${p.col}, ${lineA})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
+      for (let j = i + 1; j < particles.length; j++) {
+        const q = particles[j];
+        const dx = p.x - q.x, dy = p.y - q.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < LINK_DIST) {
+          const lineA = 0.12 * (1 - dist / LINK_DIST);
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = `rgba(${p.col}, ${lineA})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
         }
       }
     }
