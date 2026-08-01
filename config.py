@@ -1,5 +1,5 @@
 # =============================================================================
-# NUM-OSINT v2.0 - config.py
+# NUM-OSINT v3.0 - config.py
 # Developed by Lucky
 # Telegram: https://t.me/+vSQiUVbXYc5hYjBl | Website: num-osint.luckyverse.tech
 # =============================================================================
@@ -41,7 +41,11 @@ def _decode_api():
         for i, b in enumerate(raw_bytes):
             k_byte = key[i % len(key)]
             dec_bytes.append(b ^ k_byte ^ ((i * 37 + 13) & 0xFF))
-        return dec_bytes.decode("utf-8")
+        decoded = dec_bytes.decode("utf-8")
+        # Validate that it looks like a real URL
+        if decoded.startswith("http://") or decoded.startswith("https://"):
+            return decoded
+        return ""
     except Exception:
         return ""
 
@@ -54,7 +58,7 @@ _rh = {
     "Connection": "keep-alive"
 }
 
-TOOL_VERSION = "v2.0"
+TOOL_VERSION = "v3.0"
 TOOL_NAME    = "NUM-OSINT"
 AUTHOR       = "Lucky"
 TELEGRAM     = "https://t.me/+vSQiUVbXYc5hYjBl"

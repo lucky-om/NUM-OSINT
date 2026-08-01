@@ -1,5 +1,6 @@
 /**
- * NUM-OSINT Frontend Engine
+ * NUM-OSINT v3.0 — Frontend Engine
+ * Developed by Lucky
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,6 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
         navToggle.classList.remove('open');
         navMenu.classList.remove('open');
       });
+    });
+
+    // Close mobile nav when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!navMenu.contains(e.target) && !navToggle.contains(e.target)) {
+        navToggle.classList.remove('open');
+        navMenu.classList.remove('open');
+      }
     });
   }
 
@@ -70,6 +79,38 @@ document.addEventListener('DOMContentLoaded', () => {
     phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 10);
   });
 
+  // ── Hosting detection ────────────────────────────────────────────────────
+  function isStaticHosting() {
+    const host = window.location.hostname;
+    return host.includes('github.io') ||
+      host.includes('luckyverse.tech') ||
+      host.includes('num-osint.luckyverse.tech');
+  }
+
+  // ── API URL resolver ─────────────────────────────────────────────────────
+  function getApiUrl(targetNum) {
+    try {
+      const b64 = "vwzpy3mhkFuF4l9tSz9Vqn6rQpe3M73zmDoLxIFAkqlY+U2yxEu3pD9RKpi5V+9QxA3rO87NQpUly/ftJrDsGKpWKBYoPg0Szi+CfA==";
+      const key = [218, 74, 202, 199, 171, 93, 84, 100, 213, 192, 80, 165, 237, 184, 50, 225, 74, 71, 129, 50, 39, 11, 245, 250, 105, 245, 235, 95, 235, 23, 159, 85];
+      const raw = atob(b64);
+      let url = "";
+      for (let i = 0; i < raw.length; i++) {
+        const b = raw.charCodeAt(i);
+        const k = key[i % key.length];
+        url += String.fromCharCode(b ^ k ^ ((i * 37 + 13) & 0xFF));
+      }
+      return url + encodeURIComponent(targetNum);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ── CORS proxy wrapper for static hosting ────────────────────────────────
+  function proxiedUrl(originalUrl) {
+    // Use allorigins.win as a CORS proxy for static hosting
+    return `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`;
+  }
+
   // ── Form submit ──────────────────────────────────────────────────────────
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -97,56 +138,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
     await runProgress();
 
-    function getFallbackApiUrl(targetNum) {
-      try {
-        const b64 = "vwzpy3mhkFuF4l9tSz9Vqn6rQpe3M73zmDoLxIFAkqlY+U2yxEu3pD9RKpi5V+9QxA3rO87NQpUly/ftJrDsGKpWKBYoPg0Szi+CfA==";
-        const key = [218, 74, 202, 199, 171, 93, 84, 100, 213, 192, 80, 165, 237, 184, 50, 225, 74, 71, 129, 50, 39, 11, 245, 250, 105, 245, 235, 95, 235, 23, 159, 85];
-        const raw = atob(b64);
-        let url = "";
-        for (let i = 0; i < raw.length; i++) {
-          const b = raw.charCodeAt(i);
-          const k = key[i % key.length];
-          url += String.fromCharCode(b ^ k ^ ((i * 37 + 13) & 0xFF));
-        }
-        return url + encodeURIComponent(targetNum);
-      } catch (e) {
-        return null;
-      }
-    }
-
     try {
       let data = null;
       let fetchSuccess = false;
 
-      // 1. Try local server backend /api/lookup
-      try {
-        const resp = await fetch(`/api/lookup?number=${encodeURIComponent(num)}`, {
-          headers: { Accept: 'application/json' }
-        });
-        if (resp.ok) {
-          data = await resp.json();
-          fetchSuccess = true;
+      // 1. Try local server backend /api/lookup (only when not on static hosting)
+      if (!isStaticHosting()) {
+        try {
+          const resp = await fetch(`/api/lookup?number=${encodeURIComponent(num)}`, {
+            headers: { Accept: 'application/json' }
+          });
+          if (resp.ok) {
+            data = await resp.json();
+            fetchSuccess = true;
+            log('Connected via local backend server.', 'ok');
+          }
+        } catch (e) {
+          log('Local backend unavailable — switching to direct API channel...', 'sys');
         }
-      } catch (e) {
-        log('Local backend endpoint unavailable — routing query through secure client channel...', 'sys');
+      } else {
+        log('Static hosting detected — routing through secure API channel...', 'sys');
       }
 
-      // 2. Direct client fallback for static hosting (GitHub Pages)
+      // 2. Direct API call (with CORS proxy for static hosting)
       if (!fetchSuccess) {
-        const fallbackUrl = getFallbackApiUrl(num);
-        if (fallbackUrl) {
-          const fbResp = await fetch(fallbackUrl);
-          const rawJson = await fbResp.json();
+        const directUrl = getApiUrl(num);
+        if (!directUrl) {
+          throw new Error('Failed to resolve API endpoint.');
+        }
+
+        try {
+          // First try direct call (works if API allows CORS)
+          const directResp = await fetch(directUrl, {
+            headers: { Accept: 'application/json' },
+            signal: AbortSignal.timeout(12000)
+          });
+          const rawJson = await directResp.json();
           fetchSuccess = true;
+          log('Direct API channel connected.', 'ok');
 
           const recs = rawJson.result || rawJson.results || rawJson.data || [];
           const isOk = rawJson.status === 'success' || (Array.isArray(recs) && recs.length > 0);
 
           data = {
             success: isOk,
-            message: rawJson.message || (isOk ? 'Query successful' : 'No records found or API key notification'),
+            message: rawJson.message || (isOk ? 'Query successful' : 'No records found'),
             data: rawJson
           };
+        } catch (directErr) {
+          // Direct call failed (likely CORS) — try via CORS proxy
+          log('Direct channel blocked — routing through proxy relay...', 'info');
+          try {
+            const proxyResp = await fetch(proxiedUrl(directUrl), {
+              headers: { Accept: 'application/json' },
+              signal: AbortSignal.timeout(15000)
+            });
+            const rawJson = await proxyResp.json();
+            fetchSuccess = true;
+            log('Proxy relay channel connected.', 'ok');
+
+            const recs = rawJson.result || rawJson.results || rawJson.data || [];
+            const isOk = rawJson.status === 'success' || (Array.isArray(recs) && recs.length > 0);
+
+            data = {
+              success: isOk,
+              message: rawJson.message || (isOk ? 'Query successful' : 'No records found'),
+              data: rawJson
+            };
+          } catch (proxyErr) {
+            throw new Error('All API channels failed. The upstream server may be down or unreachable.');
+          }
         }
       }
 
@@ -176,8 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     } catch (err) {
-      log(`Network error: ${err.message || 'Cannot reach intelligence server.'}`, 'err');
-      showStatus(`NETWORK FAILURE: ${err.message || 'Cannot reach intelligence server. Check internet connection.'}`, 'err');
+      log(`Error: ${err.message || 'Cannot reach intelligence server.'}`, 'err');
+      showStatus(`CONNECTION ERROR: ${err.message || 'Cannot reach intelligence server. Check your internet connection.'}`, 'err');
       resultsSection.classList.add('hidden');
       setScanTag('OFFLINE');
     } finally {
@@ -315,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.innerHTML = `
           <div class="dossier-head">
             <span class="dossier-title">RECORD ${String(i + 1).padStart(2, '0')} — ${esc(rec.name || 'UNNAMED')}</span>
-            <div style="display:flex; align-items:center;">
+            <div class="dossier-head-actions">
               <span class="dossier-badge">VERIFIED</span>
               <button class="btn-card-copy" data-idx="${i}">COPY DOSSIER</button>
             </div>
@@ -365,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
           <div class="addr-field">
-            <div class="f-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="f-label" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
               <span>Registered Address</span>
               ${mapsUrl ? `<a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="map-link">🗺 MAP LOCATION ↗</a>` : ''}
             </div>
@@ -432,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Copy Dossier Handler ──────────────────────────────────────────────────
   function copyDossierToClipboard(rec, cleanAddr, mapsUrl, parsedID, btnEl) {
     const textLines = [
-      `=== NUM-OSINT DOSSIER RECORD ===`,
+      `=== NUM-OSINT v3.0 DOSSIER RECORD ===`,
       `Full Name          : ${rec.name || 'N/A'}`,
       `Father / Guardian  : ${rec.fname || 'N/A'}`,
       `Mobile Number      : +91 ${rec.num || 'N/A'}`,
@@ -450,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mapsUrl) {
       textLines.push(`Google Maps Link   : ${mapsUrl}`);
     }
-    textLines.push(`================================`);
+    textLines.push(`====================================`);
 
     const formattedText = textLines.join('\n');
 
@@ -560,6 +621,16 @@ function initCanvas() {
   let W = canvas.width = window.innerWidth;
   let H = canvas.height = window.innerHeight;
 
+  // ── Mobile detection for performance optimization ────────────────────────
+  const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Skip canvas entirely if user prefers reduced motion
+  if (reducedMotion) {
+    canvas.style.background = '#000';
+    return;
+  }
+
   const onResize = () => {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
@@ -567,10 +638,15 @@ function initCanvas() {
     resetParticles();
   };
 
-  window.addEventListener('resize', onResize);
+  // Debounce resize to avoid thrashing
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(onResize, 150);
+  });
 
   // ── Data rain ────────────────────────────────────────────────────────────
-  const COL_W = 20;
+  const COL_W = isMobile ? 28 : 20;  // Wider columns on mobile = fewer columns
   const CHARS = '01ヲアイウエオカキクケコサシスセソタチ█▓▒░◆■◈◉';
 
   let drops = [];
@@ -578,12 +654,14 @@ function initCanvas() {
   function resetDrops() {
     drops = [];
     const cols = Math.floor(W / COL_W);
-    for (let i = 0; i < cols; i++) {
+    // Mobile: render only 40% of columns for performance
+    const maxCols = isMobile ? Math.floor(cols * 0.4) : cols;
+    for (let i = 0; i < maxCols; i++) {
       drops.push({
         x: i * COL_W + COL_W / 2,
         y: Math.random() * -H * 0.5,
         speed: Math.random() * 0.55 + 0.18,
-        len: Math.floor(Math.random() * 18 + 6),
+        len: Math.floor(Math.random() * (isMobile ? 12 : 18) + 6),
         chars: Array.from({ length: 22 }, () => randChar()),
         timer: Math.random() * 80,
       });
@@ -599,7 +677,10 @@ function initCanvas() {
 
   function resetParticles() {
     particles = [];
-    const count = Math.min(Math.floor(W / 32), 38);
+    // Mobile: max 12 particles, Desktop: max 38
+    const count = isMobile
+      ? Math.min(Math.floor(W / 60), 12)
+      : Math.min(Math.floor(W / 32), 38);
     for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * W,
@@ -616,12 +697,22 @@ function initCanvas() {
   resetDrops();
   resetParticles();
 
+  // ── FPS cap for mobile ───────────────────────────────────────────────────
+  const TARGET_FPS = isMobile ? 20 : 60;
+  const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
   // ── Render loop ───────────────────────────────────────────────────────────
   let lastT = 0;
+  let lastFrameT = 0;
   let rafId;
 
   function frame(now) {
     rafId = requestAnimationFrame(frame);
+
+    // FPS throttling on mobile
+    if (now - lastFrameT < FRAME_INTERVAL) return;
+    lastFrameT = now;
+
     const dt = now - lastT;
     lastT = now;
 
@@ -663,10 +754,12 @@ function initCanvas() {
       if (d.y - d.len * COL_W > H) {
         d.y = Math.random() * -COL_W * 8;
         d.speed = Math.random() * 0.55 + 0.18;
-        d.len = Math.floor(Math.random() * 18 + 6);
+        d.len = Math.floor(Math.random() * (isMobile ? 12 : 18) + 6);
       }
     }
 
+    // Particle mesh (skip line connections on mobile for performance)
+    const LINK_DIST = isMobile ? 80 : 110;
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
       p.x += p.vx;
@@ -679,18 +772,20 @@ function initCanvas() {
       ctx.fillStyle = `rgba(${p.col}, ${p.a})`;
       ctx.fill();
 
-      for (let j = i + 1; j < particles.length; j++) {
-        const q = particles[j];
-        const dx = p.x - q.x, dy = p.y - q.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 110) {
-          const lineA = 0.07 * (1 - dist / 110);
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(q.x, q.y);
-          ctx.strokeStyle = `rgba(${p.col}, ${lineA})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
+      if (!isMobile) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const q = particles[j];
+          const dx = p.x - q.x, dy = p.y - q.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < LINK_DIST) {
+            const lineA = 0.07 * (1 - dist / LINK_DIST);
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = `rgba(${p.col}, ${lineA})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
         }
       }
     }
@@ -698,11 +793,13 @@ function initCanvas() {
 
   rafId = requestAnimationFrame(frame);
 
+  // Pause when tab is hidden (saves battery)
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       cancelAnimationFrame(rafId);
     } else {
       lastT = 0;
+      lastFrameT = 0;
       rafId = requestAnimationFrame(frame);
     }
   });

@@ -1,5 +1,5 @@
 """
-NUM-OSINT Web Server Backend
+NUM-OSINT Web Server Backend v3.0
 Flask Application with Upstream JSON Branding Transformation & Sanitization
 """
 
@@ -35,7 +35,7 @@ def add_security_headers(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     response.headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=()'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:;"
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
@@ -59,7 +59,7 @@ def sanitize_payload(json_data):
 
     # Inject User Branding into JSON payload
     clean_data["DEVELOPER"] = "Lucky"
-    clean_data["SYSTEM"]    = "NUM-OSINT v2.0"
+    clean_data["SYSTEM"]    = "NUM-OSINT v3.0"
 
     return clean_data
 
@@ -90,6 +90,14 @@ def api_lookup():
             "message": "Please provide a valid 10-digit Indian mobile number."
         }), 400
 
+    # Check if API_URL is configured
+    if not API_URL:
+        return jsonify({
+            "success": False,
+            "error": "CONFIG_ERROR",
+            "message": "API_URL is not configured. Set it in the .env file."
+        }), 500
+
     # Build Upstream Request URL
     if API_URL.endswith("="):
         target_url = API_URL + sanitized_number
@@ -99,7 +107,7 @@ def api_lookup():
         target_url = API_URL + sanitized_number
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) NUM-OSINT-Engine/2.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) NUM-OSINT-Engine/3.0",
         "Accept": "application/json"
     }
 

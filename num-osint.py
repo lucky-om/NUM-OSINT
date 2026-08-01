@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # =============================================================================
-#  NUM-OSINT  |  v2.0
+#  NUM-OSINT  |  v3.0
 #  Developed by Lucky
 #  Telegram  : https://t.me/+vSQiUVbXYc5hYjBl
 #  Website   : num-osint.luckyverse.tech
@@ -20,10 +20,10 @@ import requests
 import json
 import os
 import re
-import sys
 import shutil
 import time
 import random
+import hashlib
 from colorama import init, Fore, Style
 
 from config import (
@@ -657,15 +657,20 @@ def search_number(number: str) -> None:
     raw_data = fetch_number_data(number)
 
     if raw_data is None:
-        print(Fore.RED + "\n  ❌  Both OSINT APIs failed. Check your internet connection.\n")
+        print(Fore.RED + "\n  ❌  OSINT API unreachable. Check network connection or API URL.\n")
     else:
         print()
         spinner("Filtering & Decrypting Database Records", duration=1.0)
         print()
 
+        # Check if upstream returned an API notice or error message
+        if isinstance(raw_data, dict) and raw_data.get("message") and (raw_data.get("status") in ("error", "failed") or not raw_data.get("result")):
+            print(Fore.LIGHTMAGENTA_EX + Style.BRIGHT + f"  📢  API Notice: {raw_data['message']}\n")
+        
         records = normalize_response(raw_data)
         if not records:
-            print(Fore.YELLOW + "\n  ⚠  No OSINT data found for this number.\n")
+            if not (isinstance(raw_data, dict) and raw_data.get("message")):
+                print(Fore.YELLOW + "\n  ⚠  No OSINT data found for this number.\n")
         else:
             success_flash(len(records))
             swipe_effect(
@@ -820,7 +825,7 @@ def main() -> None:
     show_banner()
     show_disclaimer()
 
-    role = verify_security_key()   # 'admin' or 'user'
+    role = verify_security_key() 
     is_admin = (role == "admin")
 
     boot_sequence(role)
