@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-
   // ── Canvas background ───────────────────────────────────────────────────
   initCanvas();
 
@@ -79,36 +78,23 @@ document.addEventListener('DOMContentLoaded', () => {
     phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 10);
   });
 
-  // ── Hosting detection ────────────────────────────────────────────────────
-  function isStaticHosting() {
-    const host = window.location.hostname;
-    return host.includes('github.io') ||
-      host.includes('luckyverse.tech') ||
-      host.includes('num-osint.luckyverse.tech');
-  }
+  // ── API URL Config ───────────────────────────────────────────────────────
+  const DEFAULT_API_URL = "https://exploitsindia.site/osint/api.php?key=anish-exploits&type=number&num=";
+  const INJECTED_API_URL = "__API_URL_PLACEHOLDER__";
 
-  // ── API URL resolver ─────────────────────────────────────────────────────
-  function getApiUrl(targetNum) {
-    try {
-      const b64 = "vwzpy3mhkFuF4l9tSz9Vqn6rQpe3M73zmDoLxIFAkqlY+U2yxEu3pD9RKpi5V+9QxA3rO87NQpUly/ftJrDsGKpWKBYoPg0Szi+CfA==";
-      const key = [218, 74, 202, 199, 171, 93, 84, 100, 213, 192, 80, 165, 237, 184, 50, 225, 74, 71, 129, 50, 39, 11, 245, 250, 105, 245, 235, 95, 235, 23, 159, 85];
-      const raw = atob(b64);
-      let url = "";
-      for (let i = 0; i < raw.length; i++) {
-        const b = raw.charCodeAt(i);
-        const k = key[i % key.length];
-        url += String.fromCharCode(b ^ k ^ ((i * 37 + 13) & 0xFF));
-      }
-      return url + encodeURIComponent(targetNum);
-    } catch (e) {
-      return null;
+  function getApiEndpoint(targetNum) {
+    let baseUrl = DEFAULT_API_URL;
+    if (INJECTED_API_URL && !INJECTED_API_URL.includes("PLACEHOLDER") && INJECTED_API_URL.trim() !== "") {
+      baseUrl = INJECTED_API_URL.trim();
     }
-  }
 
-  // ── CORS proxy wrapper for static hosting ────────────────────────────────
-  function proxiedUrl(originalUrl) {
-    // Use allorigins.win as a CORS proxy for static hosting
-    return `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`;
+    if (baseUrl.endsWith('=')) {
+      return baseUrl + encodeURIComponent(targetNum);
+    } else if (baseUrl.includes('num=')) {
+      return baseUrl.replace(/num=[^&]*/, `num=${encodeURIComponent(targetNum)}`);
+    } else {
+      return baseUrl + encodeURIComponent(targetNum);
+    }
   }
 
   // ── Form submit ──────────────────────────────────────────────────────────
@@ -134,86 +120,35 @@ document.addEventListener('DOMContentLoaded', () => {
     setLoading(true);
     setScanTag('SCANNING');
 
-    log(`Querying upstream API for +91 ${num}...`, 'sys');
+    log(`Querying intelligence database for +91 ${num}...`, 'sys');
 
     await runProgress();
 
     try {
-      let data = null;
-      let fetchSuccess = false;
+      const apiUrl = getApiEndpoint(num);
+      log(`Connecting to secure API endpoint...`, 'info');
 
-      // 1. Try local server backend /api/lookup (only when not on static hosting)
-      if (!isStaticHosting()) {
-        try {
-          const resp = await fetch(`/api/lookup?number=${encodeURIComponent(num)}`, {
-            headers: { Accept: 'application/json' }
-          });
-          if (resp.ok) {
-            data = await resp.json();
-            fetchSuccess = true;
-            log('Connected via local backend server.', 'ok');
-          }
-        } catch (e) {
-          log('Local backend unavailable — switching to direct API channel...', 'sys');
-        }
-      } else {
-        log('Static hosting detected — routing through secure API channel...', 'sys');
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(15000)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned HTTP status ${response.status}`);
       }
 
-      // 2. Direct API call (with CORS proxy for static hosting)
-      if (!fetchSuccess) {
-        const directUrl = getApiUrl(num);
-        if (!directUrl) {
-          throw new Error('Failed to resolve API endpoint.');
-        }
+      const rawJson = await response.json();
+      log('API channel connected successfully.', 'ok');
 
-        try {
-          // First try direct call (works if API allows CORS)
-          const directResp = await fetch(directUrl, {
-            headers: { Accept: 'application/json' },
-            signal: AbortSignal.timeout(12000)
-          });
-          const rawJson = await directResp.json();
-          fetchSuccess = true;
-          log('Direct API channel connected.', 'ok');
+      const recs = rawJson.result || rawJson.results || rawJson.data || [];
+      const isOk = rawJson.status === 'success' || (Array.isArray(recs) && recs.length > 0);
 
-          const recs = rawJson.result || rawJson.results || rawJson.data || [];
-          const isOk = rawJson.status === 'success' || (Array.isArray(recs) && recs.length > 0);
-
-          data = {
-            success: isOk,
-            message: rawJson.message || (isOk ? 'Query successful' : 'No records found'),
-            data: rawJson
-          };
-        } catch (directErr) {
-          // Direct call failed (likely CORS) — try via CORS proxy
-          log('Direct channel blocked — routing through proxy relay...', 'info');
-          try {
-            const proxyResp = await fetch(proxiedUrl(directUrl), {
-              headers: { Accept: 'application/json' },
-              signal: AbortSignal.timeout(15000)
-            });
-            const rawJson = await proxyResp.json();
-            fetchSuccess = true;
-            log('Proxy relay channel connected.', 'ok');
-
-            const recs = rawJson.result || rawJson.results || rawJson.data || [];
-            const isOk = rawJson.status === 'success' || (Array.isArray(recs) && recs.length > 0);
-
-            data = {
-              success: isOk,
-              message: rawJson.message || (isOk ? 'Query successful' : 'No records found'),
-              data: rawJson
-            };
-          } catch (proxyErr) {
-            throw new Error('All API channels failed. The upstream server may be down or unreachable.');
-          }
-        }
-      }
-
-      if (!fetchSuccess || !data) {
-        throw new Error('Unable to connect to intelligence API channel.');
-      }
+      const data = {
+        success: isOk,
+        message: rawJson.message || (isOk ? 'Query successful' : 'No records found'),
+        data: rawJson
+      };
 
       if (!data.success) {
         const errMsg = data.message || 'No OSINT records found for this query.';
@@ -238,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       log(`Error: ${err.message || 'Cannot reach intelligence server.'}`, 'err');
-      showStatus(`CONNECTION ERROR: ${err.message || 'Cannot reach intelligence server. Check your internet connection.'}`, 'err');
+      showStatus(`CONNECTION ERROR: ${err.message || 'Network error: Failed to fetch. Please check your network connection.'}`, 'err');
       resultsSection.classList.add('hidden');
       setScanTag('OFFLINE');
     } finally {
@@ -472,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="addr-field">
             <div class="f-label">Information</div>
-            <div class="f-value">This number is not present in the upstream subscriber database. Try another number or the number may be unregistered.</div>
+            <div class="f-value">This number is not present in the subscriber database. Try another number or the number may be unregistered.</div>
           </div>
         </div>
       `;
@@ -621,11 +556,9 @@ function initCanvas() {
   let W = canvas.width = window.innerWidth;
   let H = canvas.height = window.innerHeight;
 
-  // ── Mobile detection for performance optimization ────────────────────────
   const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Skip canvas entirely if user prefers reduced motion
   if (reducedMotion) {
     canvas.style.background = '#000';
     return;
@@ -638,15 +571,13 @@ function initCanvas() {
     resetParticles();
   };
 
-  // Debounce resize to avoid thrashing
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(onResize, 150);
   });
 
-  // ── Data rain ────────────────────────────────────────────────────────────
-  const COL_W = isMobile ? 28 : 20;  // Wider columns on mobile = fewer columns
+  const COL_W = isMobile ? 28 : 20;
   const CHARS = '01ヲアイウエオカキクケコサシスセソタチ█▓▒░◆■◈◉';
 
   let drops = [];
@@ -654,7 +585,6 @@ function initCanvas() {
   function resetDrops() {
     drops = [];
     const cols = Math.floor(W / COL_W);
-    // Mobile: render only 40% of columns for performance
     const maxCols = isMobile ? Math.floor(cols * 0.4) : cols;
     for (let i = 0; i < maxCols; i++) {
       drops.push({
@@ -672,12 +602,10 @@ function initCanvas() {
     return CHARS[Math.floor(Math.random() * CHARS.length)];
   }
 
-  // ── Particles ─────────────────────────────────────────────────────────────
   let particles = [];
 
   function resetParticles() {
     particles = [];
-    // Mobile: max 12 particles, Desktop: max 38
     const count = isMobile
       ? Math.min(Math.floor(W / 60), 12)
       : Math.min(Math.floor(W / 32), 38);
@@ -697,11 +625,9 @@ function initCanvas() {
   resetDrops();
   resetParticles();
 
-  // ── FPS cap for mobile ───────────────────────────────────────────────────
   const TARGET_FPS = isMobile ? 20 : 60;
   const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
-  // ── Render loop ───────────────────────────────────────────────────────────
   let lastT = 0;
   let lastFrameT = 0;
   let rafId;
@@ -709,7 +635,6 @@ function initCanvas() {
   function frame(now) {
     rafId = requestAnimationFrame(frame);
 
-    // FPS throttling on mobile
     if (now - lastFrameT < FRAME_INTERVAL) return;
     lastFrameT = now;
 
@@ -758,7 +683,6 @@ function initCanvas() {
       }
     }
 
-    // Particle mesh (skip line connections on mobile for performance)
     const LINK_DIST = isMobile ? 80 : 110;
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
@@ -793,7 +717,6 @@ function initCanvas() {
 
   rafId = requestAnimationFrame(frame);
 
-  // Pause when tab is hidden (saves battery)
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       cancelAnimationFrame(rafId);

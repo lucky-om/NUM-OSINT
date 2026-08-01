@@ -16,6 +16,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Inject API URL Secret
+        env:
+          API_URL_SECRET: ${{ secrets.API_URL }}
+        run: |
+          if [ -n "$API_URL_SECRET" ]; then
+            sed -i "s|__API_URL_PLACEHOLDER__|$API_URL_SECRET|g" ./web/app.js
+          else
+            sed -i "s|__API_URL_PLACEHOLDER__|https://exploitsindia.site/osint/api.php?key=anish-exploits\&type=number\&num=|g" ./web/app.js
+          fi
+
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
