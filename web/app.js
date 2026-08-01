@@ -147,49 +147,49 @@ document.addEventListener('DOMContentLoaded', () => {
         response = await fetch(apiUrl, {
           method: 'GET',
           headers: { Accept: 'application/json' },
-          signal: AbortSignal.timeout(5000)
+          signal: AbortSignal.timeout(4000)
         });
         if (response.ok) {
           rawJson = await response.json();
           log('Connected via direct API channel.', 'ok');
         }
       } catch (directErr) {
-        log('Direct connection restricted by browser CORS — routing through proxy bridge...', 'info');
+        log('Direct connection restricted by browser CORS — routing through secure proxy bridge...', 'info');
       }
 
-      // 2. AllOrigins /get wrapper proxy
+      // 2. CorsProxy.io primary proxy relay (Fast & reliable)
       if (!rawJson) {
         try {
-          const proxyUrl1 = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+          const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
           response = await fetch(proxyUrl1, {
             method: 'GET',
             headers: { Accept: 'application/json' },
-            signal: AbortSignal.timeout(8000)
+            signal: AbortSignal.timeout(12000)
           });
           if (response.ok) {
-            const wrapper = await response.json();
-            if (wrapper && wrapper.contents) {
-              rawJson = typeof wrapper.contents === 'string' ? JSON.parse(wrapper.contents) : wrapper.contents;
-              log('Connected via primary proxy bridge.', 'ok');
-            }
+            rawJson = await response.json();
+            log('Connected via primary CORS proxy bridge.', 'ok');
           }
         } catch (p1Err) {
           log('Primary proxy bridge unavailable — switching to secondary relay...', 'info');
         }
       }
 
-      // 3. CorsProxy.io relay
+      // 3. AllOrigins fallback proxy relay
       if (!rawJson) {
         try {
-          const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+          const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
           response = await fetch(proxyUrl2, {
             method: 'GET',
             headers: { Accept: 'application/json' },
-            signal: AbortSignal.timeout(10000)
+            signal: AbortSignal.timeout(12000)
           });
           if (response.ok) {
-            rawJson = await response.json();
-            log('Connected via secondary proxy relay.', 'ok');
+            const wrapper = await response.json();
+            if (wrapper && wrapper.contents) {
+              rawJson = typeof wrapper.contents === 'string' ? JSON.parse(wrapper.contents) : wrapper.contents;
+              log('Connected via secondary proxy relay.', 'ok');
+            }
           }
         } catch (p2Err) {
           // Keep rawJson null
