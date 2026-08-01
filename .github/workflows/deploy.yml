@@ -8,16 +8,9 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
 
 jobs:
-  # Job 1: Deploy to gh-pages branch & custom domain
-  deploy-branch:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -30,26 +23,3 @@ jobs:
           publish_dir: ./web
           cname: num-osint.luckyverse.tech
           force_orphan: true
-
-  # Job 2: Register GitHub Official Pages Environment & Deployment Status UI
-  deploy-pages-env:
-    needs: deploy-branch
-    environment:
-      name: github-pages
-      url: https://num-osint.luckyverse.tech
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload Web Artifacts
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'web'
-
-      - name: Deploy to GitHub Pages Environment
-        id: deployment
-        uses: actions/deploy-pages@v4
