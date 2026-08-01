@@ -1889,79 +1889,80 @@ html, body {
 
 
 /* ==========================================================================
-   FUTURISTIC ULTRA-CYBER HERO TYPOGRAPHY & ANIMATIONS v3.0
+   CYBERPUNK NEON MATRIX HERO TYPOGRAPHY & ANIMATIONS v3.0
    ========================================================================== */
 .hero-title {
-  font-family: 'Orbitron', 'Chakra Petch', 'Audiowide', sans-serif !important;
-  font-size: clamp(2.4rem, 6.2vw, 4.2rem) !important;
-  font-weight: 800 !important;
-  line-height: 1.08 !important;
-  letter-spacing: 0.12em !important;
+  font-family: 'Orbitron', 'Russo One', 'Audiowide', sans-serif !important;
+  font-size: clamp(2.5rem, 7vw, 4.8rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
   display: inline-block !important;
-  margin-bottom: 1rem !important;
+  margin-bottom: 1.2rem !important;
   position: relative !important;
   cursor: pointer !important;
+  user-select: none !important;
 
-  /* 5-Color Moving Cyber Spectrum: White -> Cyan -> Violet -> Hot Pink -> Gold -> White */
-  background: linear-gradient(90deg, #FFFFFF 0%, #00F0FF 20%, #BF00FF 45%, #FF006E 70%, #FFB700 88%, #FFFFFF 100%) !important;
+  /* Moving Cyber Spectrum Linear Gradient */
+  background: linear-gradient(90deg, #FFFFFF 0%, #00F0FF 18%, #BF00FF 42%, #FF006E 68%, #FFB700 88%, #FFFFFF 100%) !important;
   background-size: 350% 100% !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   animation: hero-cyber-flow 6s ease-in-out infinite !important;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.3s ease !important;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
 }
 
 @keyframes hero-cyber-flow {
   0% {
     background-position: 0% 50%;
-    filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.75)) drop-shadow(0 0 35px rgba(191, 0, 255, 0.5));
+    filter: drop-shadow(0 0 22px rgba(0, 240, 255, 0.85)) drop-shadow(0 0 45px rgba(191, 0, 255, 0.6));
   }
   33% {
     background-position: 50% 50%;
-    filter: drop-shadow(0 0 26px rgba(191, 0, 255, 0.85)) drop-shadow(0 0 45px rgba(255, 0, 110, 0.6));
+    filter: drop-shadow(0 0 30px rgba(191, 0, 255, 0.95)) drop-shadow(0 0 55px rgba(255, 0, 110, 0.7));
   }
   66% {
     background-position: 100% 50%;
-    filter: drop-shadow(0 0 28px rgba(255, 0, 110, 0.85)) drop-shadow(0 0 45px rgba(255, 183, 0, 0.6));
+    filter: drop-shadow(0 0 32px rgba(255, 0, 110, 0.95)) drop-shadow(0 0 55px rgba(255, 183, 0, 0.7));
   }
   100% {
     background-position: 200% 50%;
-    filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.75)) drop-shadow(0 0 35px rgba(191, 0, 255, 0.5));
+    filter: drop-shadow(0 0 22px rgba(0, 240, 255, 0.85)) drop-shadow(0 0 45px rgba(191, 0, 255, 0.6));
   }
 }
 
 /* Chromatic Aberration & Glitch FX on Hover */
 .hero-title:hover {
-  transform: scale(1.03) translateY(-2px) !important;
-  animation: hero-cyber-flow 2s linear infinite, hero-glitch-pulse 0.22s ease infinite alternate !important;
+  transform: scale(1.04) translateY(-3px) !important;
+  animation: hero-cyber-flow 2s linear infinite, hero-glitch-pulse 0.18s ease infinite alternate !important;
 }
 
 @keyframes hero-glitch-pulse {
   0% {
-    filter: drop-shadow(-3px 0 #00F0FF) drop-shadow(3px 0 #FF006E) drop-shadow(0 0 40px rgba(191, 0, 255, 0.9));
-    transform: translate(0, 0) scale(1.03);
+    filter: drop-shadow(-4px 0 #00F0FF) drop-shadow(4px 0 #FF006E) drop-shadow(0 0 45px rgba(191, 0, 255, 0.95));
+    transform: translate(0, 0) scale(1.04);
   }
   50% {
-    filter: drop-shadow(3px -1px #FFB700) drop-shadow(-3px 1px #BF00FF) drop-shadow(0 0 50px rgba(0, 240, 255, 1));
-    transform: translate(-1px, 1px) scale(1.035);
+    filter: drop-shadow(4px -2px #FFB700) drop-shadow(-4px 2px #BF00FF) drop-shadow(0 0 60px rgba(0, 240, 255, 1));
+    transform: translate(-2px, 1px) scale(1.045);
   }
   100% {
-    filter: drop-shadow(-3px 0 #00F0FF) drop-shadow(3px 0 #FF006E) drop-shadow(0 0 40px rgba(191, 0, 255, 0.9));
-    transform: translate(1px, -1px) scale(1.03);
+    filter: drop-shadow(-4px 0 #00F0FF) drop-shadow(4px 0 #FF006E) drop-shadow(0 0 45px rgba(191, 0, 255, 0.95));
+    transform: translate(2px, -1px) scale(1.04);
   }
 }
 
-/* Subtitle Styling & Animations */
+/* Subtitle Styling & Animations (Syncopate Tech Vibe) */
 .hero-title em {
-  font-family: 'Rajdhani', 'Chakra Petch', 'JetBrains Mono', monospace !important;
-  font-weight: 700 !important;
-  font-size: clamp(0.78rem, 1.8vw, 1.15rem) !important;
-  letter-spacing: 0.38em !important;
+  font-family: 'Syncopate', 'Rajdhani', 'JetBrains Mono', monospace !important;
+  font-weight: 800 !important;
+  font-size: clamp(0.75rem, 1.9vw, 1.18rem) !important;
+  letter-spacing: 0.45em !important;
   text-transform: uppercase !important;
   display: block !important;
-  margin-top: 14px !important;
-  padding-bottom: 6px !important;
+  margin-top: 16px !important;
+  padding-bottom: 8px !important;
   position: relative !important;
 
   background: linear-gradient(90deg, #00F0FF 0%, #FF006E 50%, #FFB700 100%) !important;
@@ -1971,40 +1972,31 @@ html, body {
   animation: hero-subtitle-flow 4s ease-in-out infinite !important;
 }
 
-/* Neon Pulse Line below Subtitle */
+/* Bracket Accents & Neon Laser Line below Subtitle */
+.hero-title em::before {
+  content: '[' !important;
+  color: #00F0FF !important;
+  -webkit-text-fill-color: #00F0FF !important;
+  margin-right: 8px !important;
+  opacity: 0.8 !important;
+}
+
 .hero-title em::after {
-  content: '' !important;
-  position: absolute !important;
-  bottom: 0 !important;
-  left: 15% !important;
-  width: 70% !important;
-  height: 2px !important;
-  background: linear-gradient(90deg, transparent 0%, #00F0FF 25%, #BF00FF 50%, #FF006E 75%, transparent 100%) !important;
-  box-shadow: 0 0 12px #00F0FF, 0 0 20px #BF00FF !important;
-  animation: subtitle-line-pulse 3s ease-in-out infinite alternate !important;
+  content: ']' !important;
+  color: #FF006E !important;
+  -webkit-text-fill-color: #FF006E !important;
+  margin-left: 8px !important;
+  opacity: 0.8 !important;
 }
 
 @keyframes hero-subtitle-flow {
   0%, 100% {
     background-position: 0% 50%;
-    filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.8));
+    filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.85));
   }
   50% {
     background-position: 100% 50%;
-    filter: drop-shadow(0 0 16px rgba(255, 0, 110, 0.9));
-  }
-}
-
-@keyframes subtitle-line-pulse {
-  0% {
-    opacity: 0.4;
-    transform: scaleX(0.7);
-    box-shadow: 0 0 8px #00F0FF;
-  }
-  100% {
-    opacity: 1;
-    transform: scaleX(1);
-    box-shadow: 0 0 20px #FF006E, 0 0 35px #BF00FF;
+    filter: drop-shadow(0 0 18px rgba(255, 0, 110, 0.95));
   }
 }
 
