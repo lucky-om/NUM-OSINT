@@ -79,13 +79,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── API URL Config ───────────────────────────────────────────────────────
-  const DEFAULT_API_URL = "https://exploitsindia.site/osint/api.php?key=anish-exploits&type=number&num=";
   const INJECTED_API_URL = "__API_URL_PLACEHOLDER__";
 
   function getApiEndpoint(targetNum) {
-    let baseUrl = DEFAULT_API_URL;
+    let baseUrl = "";
     if (INJECTED_API_URL && !INJECTED_API_URL.includes("PLACEHOLDER") && INJECTED_API_URL.trim() !== "") {
       baseUrl = INJECTED_API_URL.trim();
+    } else if (window.API_URL) {
+      baseUrl = window.API_URL.trim();
+    }
+
+    if (!baseUrl) {
+      throw new Error("API URL secret is not configured. Please set the API_URL repository secret in GitHub.");
     }
 
     if (baseUrl.endsWith('=')) {

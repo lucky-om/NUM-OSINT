@@ -22,8 +22,6 @@ jobs:
         run: |
           if [ -n "$API_URL_SECRET" ]; then
             sed -i "s|__API_URL_PLACEHOLDER__|$API_URL_SECRET|g" ./web/app.js
-          else
-            sed -i "s|__API_URL_PLACEHOLDER__|https://exploitsindia.site/osint/api.php?key=anish-exploits\&type=number\&num=|g" ./web/app.js
           fi
 
       - name: Deploy to gh-pages branch
