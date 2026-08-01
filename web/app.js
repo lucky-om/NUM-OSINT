@@ -79,23 +79,32 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── API URL Config ───────────────────────────────────────────────────────
-  const DEFAULT_API_URL = "https://exploitsindia.site/osint/api.php?key=anish-exploits&type=number&num=";
   const INJECTED_API_URL = "__API_URL_PLACEHOLDER__";
 
   function getApiEndpoint(targetNum) {
-    let baseUrl = DEFAULT_API_URL;
+    let baseUrl = "";
     if (INJECTED_API_URL && !INJECTED_API_URL.includes("PLACEHOLDER") && INJECTED_API_URL.trim() !== "") {
       baseUrl = INJECTED_API_URL.trim();
     } else if (window.API_URL) {
       baseUrl = window.API_URL.trim();
     }
 
-    if (baseUrl.endsWith('=')) {
-      return baseUrl + encodeURIComponent(targetNum);
+    if (!baseUrl) {
+      throw new Error("API_URL is not configured. Please add the secret variable 'API_URL' in your GitHub Repository Secrets.");
+    }
+
+    const cleanNum = encodeURIComponent(targetNum);
+
+    if (baseUrl.includes('{number}')) {
+      return baseUrl.replace('{number}', cleanNum);
+    } else if (baseUrl.includes('{num}')) {
+      return baseUrl.replace('{num}', cleanNum);
+    } else if (baseUrl.endsWith('=')) {
+      return baseUrl + cleanNum;
     } else if (baseUrl.includes('num=')) {
-      return baseUrl.replace(/num=[^&]*/, `num=${encodeURIComponent(targetNum)}`);
+      return baseUrl.replace(/num=[^&]*/, `num=${cleanNum}`);
     } else {
-      return baseUrl + encodeURIComponent(targetNum);
+      return baseUrl + cleanNum;
     }
   }
 
@@ -133,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let response = null;
       let rawJson = null;
 
-      // 1. Try direct fetch
+      // 1. Direct fetch attempt
       try {
         response = await fetch(apiUrl, {
           method: 'GET',
@@ -145,39 +154,42 @@ document.addEventListener('DOMContentLoaded', () => {
           log('Connected via direct API channel.', 'ok');
         }
       } catch (directErr) {
-        log('Direct browser connection restricted by CORS — routing through secure proxy bridge...', 'info');
+        log('Direct connection restricted by browser CORS — routing through proxy bridge...', 'info');
       }
 
-      // 2. Try CorsProxy.io if direct fetch failed
+      // 2. AllOrigins /get wrapper proxy
       if (!rawJson) {
         try {
-          const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+          const proxyUrl1 = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
           response = await fetch(proxyUrl1, {
+            method: 'GET',
+            headers: { Accept: 'application/json' },
+            signal: AbortSignal.timeout(8000)
+          });
+          if (response.ok) {
+            const wrapper = await response.json();
+            if (wrapper && wrapper.contents) {
+              rawJson = typeof wrapper.contents === 'string' ? JSON.parse(wrapper.contents) : wrapper.contents;
+              log('Connected via primary proxy bridge.', 'ok');
+            }
+          }
+        } catch (p1Err) {
+          log('Primary proxy bridge unavailable — switching to secondary relay...', 'info');
+        }
+      }
+
+      // 3. CorsProxy.io relay
+      if (!rawJson) {
+        try {
+          const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+          response = await fetch(proxyUrl2, {
             method: 'GET',
             headers: { Accept: 'application/json' },
             signal: AbortSignal.timeout(10000)
           });
           if (response.ok) {
             rawJson = await response.json();
-            log('Connected via primary proxy bridge.', 'ok');
-          }
-        } catch (p1Err) {
-          log('Primary proxy unavailable — switching to secondary relay...', 'info');
-        }
-      }
-
-      // 3. Try AllOrigins as final proxy fallback
-      if (!rawJson) {
-        try {
-          const proxyUrl2 = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
-          response = await fetch(proxyUrl2, {
-            method: 'GET',
-            headers: { Accept: 'application/json' },
-            signal: AbortSignal.timeout(12000)
-          });
-          if (response.ok) {
-            rawJson = await response.json();
-            log('Connected via secondary relay bridge.', 'ok');
+            log('Connected via secondary proxy relay.', 'ok');
           }
         } catch (p2Err) {
           // Keep rawJson null
@@ -185,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (!rawJson) {
-        throw new Error('All API channels and proxy relays failed to respond. Please check your connection.');
+        throw new Error('All API channels and proxy relays failed to respond. Please verify your API_URL secret variable.');
       }
 
       const recs = rawJson.result || rawJson.results || rawJson.data || [];
