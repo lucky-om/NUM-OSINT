@@ -108,6 +108,24 @@ function boot() {
     }
   }
 
+  function tryParseJson(data) {
+    if (!data) return null;
+    if (typeof data === 'object') return data;
+    if (typeof data === 'string') {
+      const s = data.trim();
+      if (s.startsWith('<')) return null; // Reject HTML response pages
+      try {
+        return JSON.parse(s);
+      } catch (_) {
+        const idx1 = s.indexOf('{'), idx2 = s.lastIndexOf('}');
+        if (idx1 !== -1 && idx2 > idx1) {
+          try { return JSON.parse(s.substring(idx1, idx2 + 1)); } catch (__) {}
+        }
+      }
+    }
+    return null;
+  }
+
   function getApiEndpoint(targetNum) {
     let baseUrl = "";
 
@@ -183,53 +201,41 @@ function boot() {
       let response = null;
       let rawJson = null;
 
-      // 1. Direct fetch attempt
+      // 1. Primary Proxy Relay — ultra-fast cors.sh bridge
       try {
-        response = await fetch(apiUrl, {
+        const proxyUrl1 = `https://proxy.cors.sh/${apiUrl}`;
+        response = await fetch(proxyUrl1, {
           method: 'GET',
           headers: { Accept: 'application/json' },
-          signal: AbortSignal.timeout(5000)
+          signal: AbortSignal.timeout(8000)
         });
         if (response.ok) {
-          rawJson = await response.json();
-          log('Connected via direct API channel.', 'ok');
-        }
-      } catch (directErr) {
-        log('Direct connection restricted by browser CORS — routing through secure proxy bridge...', 'info');
-      }
-
-      // 2. CorsProxy.io primary proxy relay
-      if (!rawJson) {
-        try {
-          const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
-          response = await fetch(proxyUrl1, {
-            method: 'GET',
-            headers: { Accept: 'application/json' },
-            signal: AbortSignal.timeout(15000)
-          });
-          if (response.ok) {
-            rawJson = await response.json();
+          const text = await response.text();
+          rawJson = tryParseJson(text);
+          if (rawJson) {
             log('Connected via primary CORS proxy bridge.', 'ok');
           }
-        } catch (p1Err) {
-          log('Primary proxy bridge unavailable — switching to secondary relay...', 'info');
         }
+      } catch (p1Err) {
+        log('Primary proxy bridge unavailable — switching to secondary relay...', 'info');
       }
 
-      // 3. AllOrigins fallback proxy relay
+      // 2. Secondary Proxy Relay — AllOrigins JSON wrapper
       if (!rawJson) {
         try {
           const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
           response = await fetch(proxyUrl2, {
             method: 'GET',
             headers: { Accept: 'application/json' },
-            signal: AbortSignal.timeout(15000)
+            signal: AbortSignal.timeout(10000)
           });
           if (response.ok) {
             const wrapper = await response.json();
             if (wrapper && wrapper.contents) {
-              rawJson = typeof wrapper.contents === 'string' ? JSON.parse(wrapper.contents) : wrapper.contents;
-              log('Connected via secondary proxy relay.', 'ok');
+              rawJson = tryParseJson(wrapper.contents);
+              if (rawJson) {
+                log('Connected via secondary proxy relay.', 'ok');
+              }
             }
           }
         } catch (p2Err) {
@@ -237,31 +243,22 @@ function boot() {
         }
       }
 
-      // 4. cors-anywhere / thingproxy tertiary fallback
+      // 3. Direct fetch fallback
       if (!rawJson) {
         try {
-          const proxyUrl3 = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`;
-          response = await fetch(proxyUrl3, {
+          response = await fetch(apiUrl, {
             method: 'GET',
             headers: { Accept: 'application/json' },
-            signal: AbortSignal.timeout(15000)
+            signal: AbortSignal.timeout(6000)
           });
           if (response.ok) {
             const text = await response.text();
-            try {
-              rawJson = JSON.parse(text);
-            } catch (_) {
-              // Try extracting JSON from response
-              const s = text.indexOf('{'), e = text.lastIndexOf('}');
-              if (s !== -1 && e > s) {
-                rawJson = JSON.parse(text.substring(s, e + 1));
-              }
-            }
+            rawJson = tryParseJson(text);
             if (rawJson) {
-              log('Connected via tertiary proxy relay.', 'ok');
+              log('Connected via direct API channel.', 'ok');
             }
           }
-        } catch (p3Err) {
+        } catch (directErr) {
           // Keep rawJson null
         }
       }
