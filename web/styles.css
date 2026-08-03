@@ -1767,8 +1767,17 @@ body > *:not(#bg-canvas):not(.scanlines):not(.vignette) {
 
 /* Contact Page */
 .contact-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   margin-top: 2rem;
   gap: 1rem;
+  background: transparent;
+  border: none;
+}
+.contact-grid > .arch-card {
+  flex: 1 1 280px;
+  max-width: 320px;
 }
 .badge-telegram { color: #24A1DE !important; border-color: #24A1DE !important; }
 .badge-whatsapp { color: #25D366 !important; border-color: #25D366 !important; }

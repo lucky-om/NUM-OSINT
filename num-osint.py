@@ -612,10 +612,7 @@ def display_record(idx: int, record: dict) -> None:
         return
 
     draw_separator("═", 60, Fore.MAGENTA)
-    type_effect(
-        Fore.LIGHTRED_EX + Style.BRIGHT + f"  📋  RESULT {idx}",
-        delay=0.015,
-    )
+    print(Fore.LIGHTRED_EX + Style.BRIGHT + f"  📋  RESULT {idx}")
     draw_separator("─", 60, Fore.CYAN)
 
     for key, value in clean.items():

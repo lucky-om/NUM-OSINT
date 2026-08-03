@@ -201,9 +201,9 @@ function boot() {
       let response = null;
       let rawJson = null;
 
-      // 1. Primary Proxy Relay — ultra-fast cors.sh bridge
+      // 1. Primary Proxy Relay — corsproxy.io
       try {
-        const proxyUrl1 = `https://proxy.cors.sh/${apiUrl}`;
+        const proxyUrl1 = `https://corsproxy.io/?${apiUrl}`;
         response = await fetch(proxyUrl1, {
           method: 'GET',
           headers: { Accept: 'application/json' },
@@ -213,7 +213,7 @@ function boot() {
           const text = await response.text();
           rawJson = tryParseJson(text);
           if (rawJson) {
-            log('Connected via primary CORS proxy bridge.', 'ok');
+            log('Connected via primary proxy bridge.', 'ok');
           }
         }
       } catch (p1Err) {
@@ -243,7 +243,28 @@ function boot() {
         }
       }
 
-      // 3. Direct fetch fallback
+      // 3. Tertiary Proxy Relay — CodeTabs
+      if (!rawJson) {
+        try {
+          const proxyUrl3 = `https://api.codetabs.com/v1/proxy?quest=${apiUrl}`;
+          response = await fetch(proxyUrl3, {
+            method: 'GET',
+            headers: { Accept: 'application/json' },
+            signal: AbortSignal.timeout(8000)
+          });
+          if (response.ok) {
+            const text = await response.text();
+            rawJson = tryParseJson(text);
+            if (rawJson) {
+              log('Connected via tertiary proxy relay.', 'ok');
+            }
+          }
+        } catch (p3Err) {
+          log('Tertiary proxy bridge failed — trying direct channel...', 'info');
+        }
+      }
+
+      // 4. Direct fetch fallback
       if (!rawJson) {
         try {
           response = await fetch(apiUrl, {
@@ -686,7 +707,7 @@ function boot() {
     );
   }
 
-}); // end DOMContentLoaded
+}
 
 
 // ══ CANVAS — Cyber Matrix Data Rain + Neon Particle Constellation ════════
@@ -714,7 +735,7 @@ function initCanvas() {
     resizeTimer = setTimeout(onResize, 150);
   });
 
-  const COL_W = isMobile ? 18 : 14; 
+  const COL_W = isMobile ? 14 : 10; 
   const CHARS = '01ヲアイウエオカキクケコサシスセソタチ█▓▒░◆■◈◉ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
   let drops = [];
@@ -722,11 +743,11 @@ function initCanvas() {
   function resetDrops() {
     drops = [];
     const cols = Math.floor(W / COL_W);
-    for (let i = 0; i < cols; i += 2) {
+    for (let i = 0; i < cols; i += 4) {
       drops.push({
         x: i * COL_W + COL_W / 2,
         y: Math.random() * H,
-        speed: Math.random() * 0.6 + 0.35,
+        speed: Math.random() * 0.8 + 0.45,
         len: Math.floor(Math.random() * (isMobile ? 10 : 16) + 6),
         chars: Array.from({ length: 20 }, () => randChar()),
         timer: Math.random() * 100,
@@ -812,7 +833,7 @@ function initCanvas() {
       d.y += d.speed * dt * 1.3;
       if (d.y - d.len * COL_W > H) {
         d.y = Math.random() * -COL_W * 6;
-        d.speed = Math.random() * 0.7 + 0.45;
+        d.speed = Math.random() * 0.9 + 0.55;
         d.len = Math.floor(Math.random() * (isMobile ? 10 : 16) + 6);
       }
     }
