@@ -3,7 +3,7 @@
  * Developed by Lucky
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+function boot() {
   // ── Image error handling fallback ─────────────────────────────────────
   document.querySelectorAll('img').forEach(img => {
     img.addEventListener('error', () => {
@@ -863,5 +863,12 @@ function initCanvas() {
       rafId = requestAnimationFrame(frame);
     }
   });
+}
+
+// ── Guaranteed execution on both local and live CDN deployment ────────────
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
 }
 
