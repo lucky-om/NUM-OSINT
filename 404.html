@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Not Found | NUM-OSINT</title>
+    <meta name="description" content="The page you are looking for does not exist.">
+    <link rel="icon" type="image/svg+xml" href="chatgpt.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Bruno+Ace&family=JetBrains+Mono:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: var(--col-bg);
+            color: var(--col-text);
+            text-align: center;
+        }
+
+        .error-container {
+            max-width: 500px;
+            padding: 40px;
+            background: var(--col-surface);
+            border: 1px solid var(--col-border);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+        }
+
+        .error-code {
+            font-size: 5rem;
+            color: var(--col-primary);
+            font-family: var(--font-display);
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+
+        .error-message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .btn-home {
+            display: inline-block;
+            background: var(--col-primary);
+            color: #000;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-label);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s;
+        }
+
+        .btn-home:hover {
+            background: var(--col-primary-dim);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-container">
+        <h1 class="error-code">404</h1>
+        <p class="error-message">SYSTEM_ERR: Target directory not found.</p>
+        <a href="index.html" class="btn-home">Return to Home Page</a>
+    </div>
+</body>
+
+</html>
