@@ -21,7 +21,9 @@ jobs:
           API_URL_SECRET: ${{ secrets.API_URL }}
         run: |
           if [ -n "$API_URL_SECRET" ]; then
-            sed -i "s|__API_URL_PLACEHOLDER__|$API_URL_SECRET|g" ./web/app.js
+            # Escape sed special characters in the URL (& / \)
+            ESCAPED_URL=$(printf '%s\n' "$API_URL_SECRET" | sed 's/[&/\]/\\&/g')
+            sed -i "s|__API_URL_PLACEHOLDER__|${ESCAPED_URL}|g" ./web/app.js
           fi
 
       - name: Deploy to gh-pages branch

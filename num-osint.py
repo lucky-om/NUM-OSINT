@@ -98,21 +98,37 @@ _G_YELLOW   = [136, 142, 148, 154, 184, 220, 226]
 #  ANIMATION HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
 
-def type_effect(text: str, delay: float = 0.016) -> None:
-    """Typewriter effect: reveal text character by character."""
-    for ch in text:
-        print(ch, end='', flush=True)
-        time.sleep(delay)
-    print()
+def type_effect(text: str, delay: float = 0.005) -> None:
+    """Typewriter effect: reveal text character by character while keeping ANSI sequences intact."""
+    tokens = re.split(r'(\033\[[0-9;]*[a-zA-Z])', text)
+    for token in tokens:
+        if not token:
+            continue
+        if token.startswith('\033'):
+            print(token, end='', flush=True)
+        else:
+            for ch in token:
+                print(ch, end='', flush=True)
+                if delay > 0:
+                    time.sleep(delay)
+    print(Style.RESET_ALL, flush=True)
 
 
-def swipe_effect(text: str, delay: float = 0.005) -> None:
-    """Swipe-in reveal: each line streams in character by character."""
+def swipe_effect(text: str, delay: float = 0.003) -> None:
+    """Swipe-in reveal: each line streams in while keeping ANSI sequences intact."""
     for line in text.splitlines():
-        for ch in line:
-            print(ch, end='', flush=True)
-            time.sleep(delay)
-        print()
+        tokens = re.split(r'(\033\[[0-9;]*[a-zA-Z])', line)
+        for token in tokens:
+            if not token:
+                continue
+            if token.startswith('\033'):
+                print(token, end='', flush=True)
+            else:
+                for ch in token:
+                    print(ch, end='', flush=True)
+                    if delay > 0:
+                        time.sleep(delay)
+        print(Style.RESET_ALL, flush=True)
 
 
 def draw_separator(char: str = "─", width: int = 0, color: str = "") -> None:
@@ -391,16 +407,6 @@ def show_banner() -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 #  SECURITY  (SHA-256 key verification)
 # ─────────────────────────────────────────────────────────────────────────────
-
-def _hash_key(raw: str) -> str:
-    """SHA-256 of raw string — preserves original case."""
-    return hashlib.sha256(raw.strip().encode()).hexdigest()
-
-
-def _hash_key_lower(raw: str) -> str:
-    """SHA-256 of lowercased string (for case-insensitive keys)."""
-    return hashlib.sha256(raw.strip().lower().encode()).hexdigest()
-
 
 def verify_security_key() -> str:
     """Direct access mode — security key verification bypassed."""
@@ -857,7 +863,7 @@ def main() -> None:
             continue
 
         if cmd in ("clear", "cls"):
-            os.system("clear || cls")
+            os.system("cls" if os.name == "nt" else "clear")
             show_banner()
             continue
 

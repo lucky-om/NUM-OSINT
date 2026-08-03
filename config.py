@@ -7,6 +7,7 @@
 import os
 import base64
 import hashlib
+import sys
 
 def _load_env():
     """Load .env file if present (optional on Termux/Linux)."""
@@ -30,10 +31,12 @@ _ENC_PAYLOAD = "vwzpy3mhkFuF4l9tSz9Vqn6rQpe3M73zmDoLxIFAkqlY+U2yxEu3pD9RKpi5V+9Q
 _SALT = b"NUM_OSINT_LUCKY_V2_SALT_2026"
 
 def _decode_api():
-    """Resolve API URL: .env takes priority, falls back to SHA-256 salted decryption."""
-    env_url = os.getenv("API_URL", "").strip()
-    if env_url:
-        return env_url
+    """
+    Resolve API URL:
+    1. Encrypted payload (primary — always available)
+    2. .env / environment variable override (optional, for dev only)
+    """
+    # Try encrypted payload first (primary source — always secure)
     try:
         key = hashlib.sha256(_SALT).digest()
         raw_bytes = base64.b64decode(_ENC_PAYLOAD)
@@ -44,10 +47,20 @@ def _decode_api():
         decoded = dec_bytes.decode("utf-8")
         # Validate that it looks like a real URL
         if decoded.startswith("http://") or decoded.startswith("https://"):
+            # Allow .env override only if explicitly set (for development)
+            env_url = os.getenv("API_URL", "").strip()
+            if env_url and (env_url.startswith("http://") or env_url.startswith("https://")):
+                return env_url
             return decoded
-        return ""
-    except Exception:
-        return ""
+    except Exception as e:
+        print(f"\033[31m  ⚠  API decryption failed: {e}\033[0m", file=sys.stderr)
+
+    # Fallback: check environment variable
+    env_url = os.getenv("API_URL", "").strip()
+    if env_url:
+        return env_url
+
+    return ""
 
 API_URL = _decode_api()
 
@@ -63,3 +76,4 @@ TOOL_NAME    = "NUM-OSINT"
 AUTHOR       = "Lucky"
 TELEGRAM     = "https://t.me/+vSQiUVbXYc5hYjBl"
 WEBSITE      = "num-osint.luckyverse.tech"
+

@@ -47,12 +47,12 @@
   --col-warn:             #FF8C00;
   --col-err:              #FF3333;
 
-  /* Fonts — Elegant Modern Aesthetic Architecture */
-  --font-hero:     'JetBrains Mono', monospace;
-  --font-display:  'JetBrains Mono', monospace;
-  --font-label:    'JetBrains Mono', monospace;
-  --font-code:     'Fira Code', monospace;
-  --font-body:     'JetBrains Mono', monospace;
+  /* Fonts — High-Tech Cyber Architecture */
+  --font-hero:     'Orbitron', 'Chakra Petch', sans-serif;
+  --font-display:  'Orbitron', 'Chakra Petch', sans-serif;
+  --font-label:    'Chakra Petch', 'Syncopate', sans-serif;
+  --font-code:     'JetBrains Mono', 'Fira Code', monospace;
+  --font-body:     'Rajdhani', 'JetBrains Mono', sans-serif;
 
   /* Motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -80,7 +80,10 @@ body {
 /* ── BACKGROUND LAYERS ───────────────────────────────────────────────────── */
 #bg-canvas {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 0;
   pointer-events: none;
 }
@@ -177,45 +180,34 @@ body > *:not(#bg-canvas):not(.scanlines):not(.vignette) {
   padding: 0 24px;
 }
 
-/* Logo — Chamfered NUM block */
+/* Logo — Clean Static High-Tech Brand Header (No Animations) */
 .logo {
   display: flex;
   align-items: center;
   text-decoration: none;
-  gap: 0;
+  gap: 10px;
 }
 
-.logo-block {
-  background: var(--col-primary);
-  color: #000;
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  padding: 5px 14px;
-  position: relative;
-  overflow: hidden;
-  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+.logo-icon {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(191, 0, 255, 0.7));
 }
 
-/* Shimmer sweep on logo */
-.logo-block::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -120%;
-  width: 80%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  animation: logo-sweep 5s ease-in-out infinite;
+.logo-name {
+  font-family: 'Orbitron', 'Chakra Petch', sans-serif !important;
+  font-size: 1.25rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  background: linear-gradient(90deg, #BF00FF 0%, #FF006E 25%, #E00099 50%, #9D00FF 75%, #BF00FF 100%) !important;
+  background-size: 250% 100% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: color-wave-flow 3.5s linear infinite !important;
 }
-
-@keyframes logo-sweep {
-  0%   { left: -120%; }
-  25%  { left: 120%; }
-  100% { left: 120%; }
-}
-
-.logo-sep   { color: var(--col-primary-dim); font-family: var(--font-display); padding: 0 6px; font-size: 1rem; }
-.logo-name  { color: var(--col-text); font-family: var(--font-display); font-size: 0.9rem; font-weight: 800; letter-spacing: 0.06em; }
 .logo-badge {
   font-family: var(--font-label);
   font-size: 0.55rem;
@@ -356,108 +348,90 @@ body > *:not(#bg-canvas):not(.scanlines):not(.vignette) {
   50%       { opacity: 0.2; }
 }
 
-/* Continuous Moving Purple Magenta & Gold Flow Title Animation */
+/* ══ HERO TITLE — Clean Responsive Cyberpunk Hologram ══════════════════════ */
 .hero-title {
-  font-family: var(--font-hero);
-  font-size: clamp(2.4rem, 5vw, 3.6rem);
-  font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: 0.07em;
-  position: relative;
-  display: inline-block;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  background: linear-gradient(90deg, #BF00FF 0%, #FF007F 25%, #FFD700 50%, #E066FF 75%, #BF00FF 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: color-flow 3.5s linear infinite, title-breath 5s ease-in-out infinite;
-  filter: drop-shadow(0 0 30px rgba(191, 0, 255, 0.85));
+  font-family: 'Orbitron', 'Chakra Petch', sans-serif !important;
+  font-size: clamp(2.2rem, 6.5vw, 4.4rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.08 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  display: inline-block !important;
+  margin-bottom: 1.2rem !important;
+  position: relative !important;
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+
+  /* Moving Color Wave Gradient — NO White Color */
+  background: linear-gradient(90deg, #BF00FF 0%, #FF006E 25%, #E00099 50%, #9D00FF 75%, #BF00FF 100%) !important;
+  background-size: 250% 100% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: color-wave-flow 3.5s linear infinite !important;
+  transition: transform 0.3s ease !important;
 }
 
-@keyframes color-flow {
-  0%   { background-position: 0% 50%; filter: drop-shadow(0 0 28px rgba(191, 0, 255, 0.85)); }
-  50%  { background-position: 100% 50%; filter: drop-shadow(0 0 36px rgba(255, 0, 127, 0.9)); }
-  100% { background-position: 200% 50%; filter: drop-shadow(0 0 28px rgba(191, 0, 255, 0.85)); }
+@keyframes color-wave-flow {
+  0%   { background-position: 0% 50%; filter: drop-shadow(0 0 15px rgba(191,0,255,0.85)) drop-shadow(0 0 30px rgba(255,0,110,0.6)); }
+  50%  { background-position: 100% 50%; filter: drop-shadow(0 0 25px rgba(255,0,110,0.95)) drop-shadow(0 0 40px rgba(191,0,255,0.7)); }
+  100% { background-position: 200% 50%; filter: drop-shadow(0 0 15px rgba(191,0,255,0.85)) drop-shadow(0 0 30px rgba(255,0,110,0.6)); }
 }
 
-@keyframes title-breath {
-  0%, 100% { transform: scale(1); letter-spacing: 0.06em; }
-  50%       { transform: scale(1.025); letter-spacing: 0.08em; }
+.hero-title:hover {
+  transform: translateY(-2px) !important;
 }
 
-@keyframes cyber-hologram-pulse {
-  0% {
-    text-shadow:
-      0 0 5px #FFF,
-      0 0 15px var(--col-primary),
-      0 0 30px var(--col-primary),
-      0 0 50px var(--col-secondary),
-      0 0 80px var(--col-secondary);
+/* Subtitle inside hero title */
+.hero-title em {
+  font-family: 'Syncopate', 'Chakra Petch', monospace !important;
+  font-weight: 800 !important;
+  font-style: normal;
+  font-size: clamp(0.72rem, 1.8vw, 1.15rem) !important;
+  letter-spacing: 0.38em !important;
+  text-transform: uppercase !important;
+  display: block !important;
+  margin-top: 14px !important;
+  padding-bottom: 8px !important;
+  position: relative !important;
+  word-break: break-word !important;
+
+  background: linear-gradient(90deg, #BF00FF 0%, #FF006E 50%, #FF3399 100%) !important;
+  background-size: 200% 100% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: hero-subtitle-flow 4s ease-in-out infinite !important;
+}
+
+/* Bracket accents on subtitle */
+.hero-title em::before {
+  content: '[' !important;
+  color: #BF00FF !important;
+  -webkit-text-fill-color: #BF00FF !important;
+  margin-right: 6px !important;
+  opacity: 0.9 !important;
+}
+
+.hero-title em::after {
+  content: ']' !important;
+  color: #FF006E !important;
+  -webkit-text-fill-color: #FF006E !important;
+  margin-left: 6px !important;
+  opacity: 0.9 !important;
+}
+
+@keyframes hero-subtitle-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 10px rgba(191, 0, 255, 0.8));
   }
   50% {
-    text-shadow:
-      0 0 8px #FFF,
-      0 0 25px var(--col-tertiary),
-      0 0 45px var(--col-tertiary),
-      0 0 70px var(--col-primary),
-      0 0 100px var(--col-primary);
+    background-position: 100% 50%;
+    filter: drop-shadow(0 0 16px rgba(255, 0, 110, 0.9));
   }
-  100% {
-    text-shadow:
-      0 0 5px #FFF,
-      0 0 20px var(--col-secondary),
-      0 0 40px var(--col-secondary),
-      0 0 60px var(--col-primary),
-      0 0 90px var(--col-primary);
-  }
-}
-
-@keyframes title-float {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50%       { transform: translateY(-6px) scale(1.02); }
-}
-
-
-
-@keyframes glitch-skew {
-  0%, 85%, 100% { transform: skew(0deg); }
-  86% { transform: skew(1.5deg); }
-  87% { transform: skew(-1.5deg); }
-  88% { transform: skew(0deg); }
-}
-
-@keyframes glitch-anim-1 {
-  0% { clip: rect(20px, 9999px, 15px, 0); }
-  25% { clip: rect(42px, 9999px, 78px, 0); }
-  50% { clip: rect(12px, 9999px, 50px, 0); }
-  75% { clip: rect(65px, 9999px, 20px, 0); }
-  100% { clip: rect(5px, 9999px, 40px, 0); }
-}
-
-@keyframes glitch-anim-2 {
-  0% { clip: rect(40px, 9999px, 60px, 0); }
-  30% { clip: rect(10px, 9999px, 35px, 0); }
-  60% { clip: rect(75px, 9999px, 15px, 0); }
-  100% { clip: rect(25px, 9999px, 90px, 0); }
-}
-
-.hero-title em {
-  display: block;
-  font-style: normal;
-  font-size: clamp(1rem, 2.2vw, 1.3rem);
-  color: var(--col-primary-dim);
-  letter-spacing: 0.04em;
-  text-shadow: 0 0 30px var(--col-primary-glow), 0 0 80px rgba(191,0,255,0.1);
-  margin-top: 6px;
-}
-
-@keyframes glitch-idle {
-  0%, 88%, 100% { text-shadow: none; transform: none; }
-  89% { text-shadow: -3px 0 var(--col-secondary), 3px 0 var(--col-primary); transform: skewX(-0.8deg); }
-  90% { text-shadow: 3px 0 var(--col-secondary), -3px 0 var(--col-primary); transform: skewX(0.8deg); }
-  91%, 93% { text-shadow: none; transform: none; }
-  92% { text-shadow: -2px 0 var(--col-secondary), 2px 0 var(--col-tertiary); transform: translateX(2px); }
 }
 
 .hero-desc {
@@ -1707,34 +1681,9 @@ body > *:not(#bg-canvas):not(.scanlines):not(.vignette) {
   color: #000;
 }
 
-/* Glitch Title Hover */
-.hero-title:hover {
-  text-shadow: -4px 0 #FFB700, 4px 0 #9D00FF, 0 0 25px rgba(191,0,255,0.9);
-  animation: glitch-hover 0.25s ease infinite;
-}
-@keyframes glitch-hover {
-  0% { transform: translate(0); }
-  25% { transform: translate(-2px, 1px); }
-  50% { transform: translate(2px, -1px); }
-  75% { transform: translate(-1px, -2px); }
-  100% { transform: translate(0); }
-}
-
-
 /* ==========================================================================
    NEON COLOR SHIFT & CYBER EFFECTS v3.0
    ========================================================================== */
-
-/* Color shifting hero subtitle */
-.hero-title em {
-  display: block;
-  font-style: normal;
-  animation: color-cycle 8s ease-in-out infinite;
-}
-@keyframes color-cycle {
-  0%, 100% { color: #E066FF; text-shadow: 0 0 25px rgba(191,0,255,0.8); }
-  50%      { color: #FFD700; text-shadow: 0 0 25px rgba(255,215,0,0.8); }
-}
 
 /* Pulsing terminal border glow */
 .terminal-panel {
@@ -1888,141 +1837,82 @@ html, body {
 .contact-grid .arch-card .card-desc-margin { margin-bottom: 1.5rem; text-align: center; }
 
 
-/* ==========================================================================
-   CYBERPUNK NEON MATRIX HERO TYPOGRAPHY & ANIMATIONS v3.0
-   ========================================================================== */
-.hero-title {
-  font-family: 'Orbitron', 'Russo One', 'Audiowide', sans-serif !important;
-  font-size: clamp(2.5rem, 7vw, 4.8rem) !important;
-  font-weight: 900 !important;
-  line-height: 1.05 !important;
-  letter-spacing: 0.14em !important;
-  text-transform: uppercase !important;
-  display: inline-block !important;
-  margin-bottom: 1.2rem !important;
-  position: relative !important;
-  cursor: pointer !important;
-  user-select: none !important;
-
-  /* Moving Cyber Spectrum Linear Gradient */
-  background: linear-gradient(90deg, #FFFFFF 0%, #00F0FF 18%, #BF00FF 42%, #FF006E 68%, #FFB700 88%, #FFFFFF 100%) !important;
-  background-size: 350% 100% !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  animation: hero-cyber-flow 6s ease-in-out infinite !important;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-}
-
-@keyframes hero-cyber-flow {
-  0% {
-    background-position: 0% 50%;
-    filter: drop-shadow(0 0 22px rgba(0, 240, 255, 0.85)) drop-shadow(0 0 45px rgba(191, 0, 255, 0.6));
-  }
-  33% {
-    background-position: 50% 50%;
-    filter: drop-shadow(0 0 30px rgba(191, 0, 255, 0.95)) drop-shadow(0 0 55px rgba(255, 0, 110, 0.7));
-  }
-  66% {
-    background-position: 100% 50%;
-    filter: drop-shadow(0 0 32px rgba(255, 0, 110, 0.95)) drop-shadow(0 0 55px rgba(255, 183, 0, 0.7));
-  }
-  100% {
-    background-position: 200% 50%;
-    filter: drop-shadow(0 0 22px rgba(0, 240, 255, 0.85)) drop-shadow(0 0 45px rgba(191, 0, 255, 0.6));
-  }
-}
-
-/* Chromatic Aberration & Glitch FX on Hover */
-.hero-title:hover {
-  transform: scale(1.04) translateY(-3px) !important;
-  animation: hero-cyber-flow 2s linear infinite, hero-glitch-pulse 0.18s ease infinite alternate !important;
-}
-
-@keyframes hero-glitch-pulse {
-  0% {
-    filter: drop-shadow(-4px 0 #00F0FF) drop-shadow(4px 0 #FF006E) drop-shadow(0 0 45px rgba(191, 0, 255, 0.95));
-    transform: translate(0, 0) scale(1.04);
-  }
-  50% {
-    filter: drop-shadow(4px -2px #FFB700) drop-shadow(-4px 2px #BF00FF) drop-shadow(0 0 60px rgba(0, 240, 255, 1));
-    transform: translate(-2px, 1px) scale(1.045);
-  }
-  100% {
-    filter: drop-shadow(-4px 0 #00F0FF) drop-shadow(4px 0 #FF006E) drop-shadow(0 0 45px rgba(191, 0, 255, 0.95));
-    transform: translate(2px, -1px) scale(1.04);
-  }
-}
-
-/* Subtitle Styling & Animations (Syncopate Tech Vibe) */
-.hero-title em {
-  font-family: 'Syncopate', 'Rajdhani', 'JetBrains Mono', monospace !important;
-  font-weight: 800 !important;
-  font-size: clamp(0.75rem, 1.9vw, 1.18rem) !important;
-  letter-spacing: 0.45em !important;
-  text-transform: uppercase !important;
-  display: block !important;
-  margin-top: 16px !important;
-  padding-bottom: 8px !important;
-  position: relative !important;
-
-  background: linear-gradient(90deg, #00F0FF 0%, #FF006E 50%, #FFB700 100%) !important;
-  background-size: 200% 100% !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  animation: hero-subtitle-flow 4s ease-in-out infinite !important;
-}
-
-/* Bracket Accents & Neon Laser Line below Subtitle */
-.hero-title em::before {
-  content: '[' !important;
-  color: #00F0FF !important;
-  -webkit-text-fill-color: #00F0FF !important;
-  margin-right: 8px !important;
-  opacity: 0.8 !important;
-}
-
-.hero-title em::after {
-  content: ']' !important;
-  color: #FF006E !important;
-  -webkit-text-fill-color: #FF006E !important;
-  margin-left: 8px !important;
-  opacity: 0.8 !important;
-}
-
-@keyframes hero-subtitle-flow {
-  0%, 100% {
-    background-position: 0% 50%;
-    filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.85));
-  }
-  50% {
-    background-position: 100% 50%;
-    filter: drop-shadow(0 0 18px rgba(255, 0, 110, 0.95));
-  }
-}
+/* (Hero title styles are consolidated in the HERO section above — no duplicates) */
 
 
-/* ==========================================================================
-   ANIMATED LOGO & LEGAL PANEL v3.0
-   ========================================================================== */
-
-/* Animated Moving Gradient Logo Text */
+/* Animated Moving Violet & Hot Pink Gradient Logo Text */
 .logo-name {
-  font-family: 'Audiowide', 'Oxanium', sans-serif !important;
-  font-size: 1.18rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.06em !important;
+  font-family: 'Chakra Petch', 'Orbitron', 'Audiowide', sans-serif !important;
+  font-size: 1.3rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
-  background: linear-gradient(90deg, #FFFFFF 0%, #BF00FF 35%, #FF006E 70%, #FFFFFF 100%) !important;
+  background: linear-gradient(90deg, #FFFFFF 0%, #BF00FF 45%, #FF006E 80%, #FFFFFF 100%) !important;
   background-size: 250% 100% !important;
   -webkit-background-clip: text !important;
+  background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
-  animation: logo-color-flow 4s linear infinite !important;
-  filter: drop-shadow(0 0 10px rgba(191, 0, 255, 0.5)) !important;
+  animation: logo-color-flow 4s ease-in-out infinite !important;
+  filter: drop-shadow(0 0 12px rgba(191, 0, 255, 0.85)) !important;
+  transition: transform 0.25s ease !important;
+}
+.logo:hover .logo-name {
+  transform: scale(1.06);
 }
 @keyframes logo-color-flow {
-  0%   { background-position: 0% 50%; filter: drop-shadow(0 0 8px rgba(191, 0, 255, 0.5)); }
-  50%  { background-position: 100% 50%; filter: drop-shadow(0 0 14px rgba(255, 0, 110, 0.7)); }
-  100% { background-position: 200% 50%; filter: drop-shadow(0 0 8px rgba(191, 0, 255, 0.5)); }
+  0%   { background-position: 0% 50%; filter: drop-shadow(0 0 10px rgba(191, 0, 255, 0.85)); }
+  50%  { background-position: 100% 50%; filter: drop-shadow(0 0 18px rgba(255, 0, 110, 0.95)); }
+  100% { background-position: 200% 50%; filter: drop-shadow(0 0 10px rgba(191, 0, 255, 0.85)); }
+}
+
+/* Contact Page Centered Alignment */
+.contact-panel-wrap {
+  text-align: center !important;
+  max-width: 900px;
+  margin: 1.5rem auto 4rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.contact-panel-wrap h1 {
+  text-align: center !important;
+  font-family: 'Orbitron', 'Audiowide', sans-serif !important;
+  font-size: clamp(2rem, 5vw, 3.2rem) !important;
+  margin-bottom: 0.5rem !important;
+  background: linear-gradient(90deg, #FFFFFF 0%, #BF00FF 40%, #FF006E 80%, #FFFFFF 100%) !important;
+  background-size: 250% 100% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: logo-color-flow 4s ease-in-out infinite !important;
+}
+.contact-panel-wrap .updated {
+  text-align: center !important;
+  margin: 0.2rem auto 1.5rem auto !important;
+  color: var(--col-primary-dim) !important;
+  display: block !important;
+}
+.contact-panel-wrap p {
+  text-align: center !important;
+  max-width: 650px;
+  margin: 0 auto 2.5rem auto !important;
+}
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.contact-grid .arch-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px 20px;
 }
 
 /* Legal Panel Alignment */
@@ -2078,3 +1968,100 @@ html, body {
 }
 
 
+/* ==========================================================================
+   WHATSAPP & TELEGRAM DEEP LINK BUTTONS v3.0
+   ========================================================================== */
+
+/* Container bar for deep link buttons */
+.deep-links-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--col-border-panel);
+  background: var(--col-surface-low);
+  flex-wrap: wrap;
+}
+
+/* Shared deep link button base */
+.btn-deep-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  font-family: var(--font-label);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-deep-link svg {
+  flex-shrink: 0;
+}
+
+/* WhatsApp button */
+.btn-whatsapp-direct {
+  color: #25D366;
+  border-color: rgba(37, 211, 102, 0.4);
+  background: rgba(37, 211, 102, 0.08);
+}
+.btn-whatsapp-direct:hover {
+  background: #25D366;
+  color: #000;
+  border-color: #25D366;
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.5), 0 0 40px rgba(37, 211, 102, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Telegram button */
+.btn-telegram-direct {
+  color: #26A5E4;
+  border-color: rgba(38, 165, 228, 0.4);
+  background: rgba(38, 165, 228, 0.08);
+}
+.btn-telegram-direct:hover {
+  background: #26A5E4;
+  color: #000;
+  border-color: #26A5E4;
+  box-shadow: 0 0 20px rgba(38, 165, 228, 0.5), 0 0 40px rgba(38, 165, 228, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Responsive: stack deep link buttons on small screens */
+@media (max-width: 480px) {
+  .deep-links-bar {
+    flex-direction: column;
+    padding: 10px 12px;
+  }
+  .btn-deep-link {
+    justify-content: center;
+    width: 100%;
+    padding: 10px 14px;
+  }
+}
+
+/* ==========================================================================
+   CONTACT PAGE 4 CONTACT CARDS CENTERING ONLY
+   ========================================================================== */
+.contact-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 1.5rem !important;
+  width: 100% !important;
+  margin-top: 2rem !important;
+  justify-content: center !important;
+}
+
+.contact-grid .arch-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 28px 20px !important;
+}
